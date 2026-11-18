@@ -1,0 +1,441 @@
+// Nawat Invites: database schema (DRAFT v0, design phase)
+// PostgreSQL 16 · Prisma 7 (connection URL lives in prisma.config.ts)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ───────────────────────── Enums ─────────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  STAFF
+  CLIENT
+  GATEKEEPER
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  LOCKED
+}
+
+enum Tier {
+  IVORY
+  GILDED
+  ROYAL_SEAL
+}
+
+enum PackageType {
+  ATELIER    // self-service dashboard
+  CONCIERGE  // done-for-you by Nawat
+}
+
+enum AccountStatus {
+  ACTIVE
+  SUSPENDED
+  EXPIRED
+}
+
+enum EventType {
+  ENGAGEMENT
+  WEDDING
+  RECEPTION
+  HENNA
+  OTHER
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED   // RSVPs closed, page still visible
+  PRIVATE  // past retention window
+  ARCHIVED
+}
+
+enum OpeningStyle {
+  ENVELOPE_SEAL
+  PALACE_DOORS
+  VELVET_CURTAIN
+  JEWEL_BOX
+  PEARL_SHELL
+  VIDEO
+}
+
+enum MediaKind {
+  IMAGE
+  AUDIO
+  VIDEO
+}
+
+enum MediaStatus {
+  PENDING
+  READY
+  REJECTED
+}
+
+enum GuestSide {
+  BRIDE
+  GROOM
+  BOTH
+  OTHER
+}
+
+enum RsvpStatus {
+  ATTENDING
+  DECLINED
+}
+
+enum ReportKind {
+  PDF
+  XLSX
+}
+
+enum JobStatus {
+  QUEUED
+  RUNNING
+  DONE
+  FAILED
+}
+
+// ───────────────────────── Identity ─────────────────────────
+
+model User {
+  id                 String     @id @default(cuid())
+  username           String     @unique
+  displayName        String
+  email              String?    @unique
+  passwordHash       String
+  role               Role
+  status             UserStatus @default(ACTIVE)
+  mustChangePassword Boolean    @default(true)
+  totpSecretEnc      String?    // AES-GCM ciphertext
+  totpEnabled        Boolean    @default(false)
+  recoveryCodes      String[]   // argon2 hashes
+  failedLogins       Int        @default(0)
+  lockedUntil        DateTime?
+  lastLoginAt        DateTime?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  accountId String?
+  account   ClientAccount? @relation(fields: [accountId], references: [id])
+
+  sessions       Session[]
+  gateAssignments EventGatekeeper[]
+  checkIns       CheckIn[]
+  auditLogs      AuditLog[]      @relation("actor")
+  createdAccounts ClientAccount[] @relation("createdBy")
+
+  @@index([accountId])
+}
+
+model Session {
+  id               String   @id // sha256(sessionToken)
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt        DateTime
+  ipHash           String?
+  userAgent        String?
+  actingAsAccountId String? // set during admin "Manage as client"
+  actingUntil      DateTime?
+  createdAt        DateTime @default(now())
+
+  @@index([userId])
+}
+
+// ───────────────────────── Commercial ─────────────────────────
+
+model Plan {
+  id           String      @id @default(cuid())
+  code         String      @unique // e.g. GILDED_ATELIER
+  nameEn       String
+  nameAr       String
+  tier         Tier
+  package      PackageType
+  entitlements Json        // validated by lib/entitlements/schema.ts
+  priceOmr     Decimal?    @db.Decimal(10, 3)
+  active       Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  accounts ClientAccount[]
+}
+
+model ClientAccount {
+  id                   String        @id @default(cuid())
+  displayName          String        // "Sara & Omar"
+  contactName          String?
+  contactPhoneEnc      String?
+  status               AccountStatus @default(ACTIVE)
+  validFrom            DateTime      @default(now())
+  validUntil           DateTime?
+  planId               String
+  plan                 Plan          @relation(fields: [planId], references: [id])
+  entitlementOverrides Json          @default("{}")
+  internalNotes        String?
+  createdById          String
+  createdBy            User          @relation("createdBy", fields: [createdById], references: [id])
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  users       User[]
+  events      Event[]
+  media       MediaAsset[]
+  musicTrials MusicTrial[]
+
+  @@index([planId])
+}
+
+// ───────────────────────── Themes & media ─────────────────────────
+
+model Theme {
+  id            String       @id @default(cuid())
+  slug          String       @unique // "royal-seal-majlis"
+  nameEn        String
+  nameAr        String
+  tier          Tier
+  opening       OpeningStyle
+  componentKey  String       // maps to themes/<key>/index.tsx
+  configSchema  Json         // what the host may customise
+  defaultConfig Json
+  previewImage  String?
+  previewVideo  String?
+  sortOrder     Int          @default(0)
+  active        Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+
+  events Event[]
+}
+
+model MediaAsset {
+  id          String      @id @default(cuid())
+  accountId   String
+  account     ClientAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  kind        MediaKind
+  status      MediaStatus @default(PENDING)
+  storageKey  String      @unique
+  mime        String
+  sizeBytes   Int
+  width       Int?
+  height      Int?
+  durationSec Int?
+  sha256      String
+  createdAt   DateTime    @default(now())
+
+  @@index([accountId])
+}
+
+model MusicTrack {
+  id          String   @id @default(cuid())
+  titleEn     String
+  titleAr     String
+  artist      String?
+  mood        String?  // "Oud · romantic", "Strings · grand"
+  storageKey  String
+  durationSec Int
+  minTier     Tier     @default(GILDED)
+  licence     String   // licence reference
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  trials MusicTrial[]
+}
+
+/// Each distinct track a client tries on their invite counts once toward music.trialLimit
+model MusicTrial {
+  id        String        @id @default(cuid())
+  accountId String
+  account   ClientAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  trackId   String
+  track     MusicTrack    @relation(fields: [trackId], references: [id])
+  createdAt DateTime      @default(now())
+
+  @@unique([accountId, trackId])
+}
+
+// ───────────────────────── Invitation ─────────────────────────
+
+model Event {
+  id              String      @id @default(cuid())
+  accountId       String
+  account         ClientAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  themeId         String
+  theme           Theme       @relation(fields: [themeId], references: [id])
+  type            EventType   @default(WEDDING)
+  status          EventStatus @default(DRAFT)
+  slug            String      @unique // "sara-omar-7Kq2"
+  title           String
+  startsAt        DateTime
+  endsAt          DateTime?
+  timezone        String      @default("Asia/Muscat")
+  venueName       String?
+  venueAddress    String?
+  mapUrl          String?
+  lat             Float?
+  lng             Float?
+  defaultLocale   String      @default("ar")
+  locales         String[]    @default(["ar"])
+  content         Json        // EventConfig: sections, texts, colours, music refs
+  rsvpConfig      Json        // field states, notices, deadline, wording
+  openLinkEnabled Boolean     @default(false)
+  rsvpDeadline    DateTime?
+  publishedAt     DateTime?
+  privateAfter    DateTime?   // auto-private date (default event + 30d)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  versions    EventVersion[]
+  guests      Guest[]
+  rsvps       Rsvp[]
+  passes      Pass[]
+  gatekeepers EventGatekeeper[]
+  reports     ReportExport[]
+
+  @@index([accountId])
+  @@index([status, privateAfter])
+}
+
+model EventVersion {
+  id        String   @id @default(cuid())
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  content   Json
+  rsvpConfig Json
+  authorId  String
+  createdAt DateTime @default(now())
+
+  @@index([eventId, createdAt])
+}
+
+model Guest {
+  id                 String    @id @default(cuid())
+  eventId            String
+  event              Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name               String
+  phoneEnc           String?
+  side               GuestSide @default(OTHER)
+  group              String?   // "Al Harthy family", "Work friends"
+  allowedCompanions  Int       @default(0)
+  locale             String?
+  keyHash            String    @unique // HMAC-SHA256(guestKey)
+  keyEnc             String    // AES-GCM(guestKey) so host can re-copy the link
+  linkSentAt         DateTime?
+  firstOpenedAt      DateTime?
+  openCount          Int       @default(0)
+  createdAt          DateTime  @default(now())
+
+  rsvp Rsvp?
+
+  @@index([eventId])
+}
+
+model Rsvp {
+  id          String     @id @default(cuid())
+  eventId     String
+  event       Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  guestId     String?    @unique // null for open-link RSVPs
+  guest       Guest?     @relation(fields: [guestId], references: [id], onDelete: SetNull)
+  status      RsvpStatus
+  name        String?
+  phoneEnc    String?
+  companions  Int        @default(0)
+  note        String?
+  answers     Json       @default("{}") // custom questions
+  acknowledged String[]  // notice ids the guest ticked
+  locale      String?
+  ipHash      String?
+  submittedAt DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  pass Pass?
+
+  @@index([eventId, status])
+}
+
+// ───────────────────────── Entry ─────────────────────────
+
+model Pass {
+  id            String    @id @default(cuid())
+  eventId       String
+  event         Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  rsvpId        String    @unique
+  rsvp          Rsvp      @relation(fields: [rsvpId], references: [id], onDelete: Cascade)
+  keyHash       String    @unique // sha256(passKey); passKey only ever lives in the QR/link
+  admitCount    Int       // 1 + companions
+  admittedTotal Int       @default(0)
+  revokedAt     DateTime?
+  issuedAt      DateTime  @default(now())
+
+  checkIns CheckIn[]
+
+  @@index([eventId])
+}
+
+model CheckIn {
+  id           String   @id @default(cuid())
+  passId       String
+  pass         Pass     @relation(fields: [passId], references: [id], onDelete: Cascade)
+  gatekeeperId String
+  gatekeeper   User     @relation(fields: [gatekeeperId], references: [id])
+  admitted     Int
+  scannedAt    DateTime @default(now())
+  syncedAt     DateTime @default(now()) // differs from scannedAt for offline scans
+  deviceId     String?
+  conflict     Boolean  @default(false)
+
+  @@index([passId])
+}
+
+model EventGatekeeper {
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+
+  @@id([eventId, userId])
+}
+
+// ───────────────────────── Ops ─────────────────────────
+
+model ReportExport {
+  id          String     @id @default(cuid())
+  eventId     String
+  event       Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  kind        ReportKind
+  status      JobStatus  @default(QUEUED)
+  requestedBy String
+  storageKey  String?
+  error       String?
+  createdAt   DateTime   @default(now())
+  finishedAt  DateTime?
+
+  @@index([eventId])
+}
+
+model AuditLog {
+  id                String   @id @default(cuid())
+  actorId           String?
+  actor             User?    @relation("actor", fields: [actorId], references: [id])
+  actingAsAccountId String?
+  action            String   // "account.create", "entitlement.update", "event.publish", ...
+  entity            String
+  entityId          String?
+  meta              Json     @default("{}")
+  ipHash            String?
+  createdAt         DateTime @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([entity, entityId])
+}
+
+model SystemSetting {
+  key       String   @id // "brand.footer", "tier.names", ...
+  value     Json
+  updatedAt DateTime @updatedAt
+}

@@ -6,6 +6,8 @@ import type { InvitationData } from "./types";
 import { digits, STRINGS, type Locale } from "./i18n";
 import { InvitationMusic } from "./music";
 import { Opening } from "./Opening";
+import { PhotoOpening } from "./PhotoOpening";
+import { Closing, CurtainLetter, DressCode, Faq, HallArt, LightRoom, SealDate, StickyReply, SwipeNotices } from "./sections";
 import { Ornament } from "./Ornament";
 import { Rsvp } from "./Rsvp";
 
@@ -33,6 +35,8 @@ export function Invitation({ data: d }: { data: InvitationData }) {
   const [flash, setFlash] = useState(false);
   const [musicOn, setMusicOn] = useState(false);
   const [replay, setReplay] = useState(0);
+  const [reducedMotion, setReducedMotion] = useState(false);
+  useEffect(() => { setReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches); }, []);
   const music = useRef<InvitationMusic | null>(null);
   const t = STRINGS[lang];
   const bilingual = d.content.locales.length > 1;
@@ -45,7 +49,7 @@ export function Invitation({ data: d }: { data: InvitationData }) {
 
   const vars = useMemo(() => {
     const p = d.theme.palette;
-    return { "--night": p.night, "--night2": p.night2, "--glow": p.glow, "--paper": p.paper, "--paper2": p.paper2, "--ink": p.ink, "--muted": p.muted, "--cream": p.cream, "--mutedDark": p.mutedDark, "--accent": d.accent, "--accentText": p.accentText, "--onAccent": p.onAccent, "--display": `"${d.theme.fonts.display}"`, "--arabic": `"${d.theme.fonts.arabic}"` } as React.CSSProperties;
+    return { "--night": p.night, "--night2": p.night2, "--glow": p.glow, "--paper": p.paper, "--paper2": p.paper2, "--ink": p.ink, "--muted": p.muted, "--cream": p.cream, "--mutedDark": p.mutedDark, "--accent": d.accent, "--accentText": p.accentText, "--onAccent": p.onAccent, "--display": `"${d.theme.fonts.display}"`, "--arabic": `"${d.theme.fonts.arabic}"`, "--script": `"${d.theme.fonts.script}"` } as React.CSSProperties;
   }, [d.theme, d.accent]);
 
   const start = new Date(d.startsAt);
@@ -84,7 +88,7 @@ export function Invitation({ data: d }: { data: InvitationData }) {
   const notices = d.rsvp.notices.filter((n) => n.mode !== "off");
 
   return (
-    <div className="inv" dir={lang === "ar" ? "rtl" : "ltr"} lang={lang} style={vars}>
+    <div className={`inv${d.mode !== "live" ? " has-banner" : ""}`} dir={lang === "ar" ? "rtl" : "ltr"} lang={lang} style={vars}>
       <div className="inv-bar">
         {bilingual ? <button className="inv-chip" type="button" onClick={toggleLang} aria-label="Language"><span className={lang === "ar" ? "" : "arl"}>{t.lang}</span></button> : <span />}
         {d.music && (
@@ -97,14 +101,19 @@ export function Invitation({ data: d }: { data: InvitationData }) {
       </div>
 
       <div className={`inv-stage${stage === "open" ? " gone" : ""}`} role="dialog" aria-modal={stage !== "open"} aria-label="Invitation opening" style={stage === "open" ? { visibility: "hidden" } : undefined}>
-        <Opening theme={d.theme} accent={d.accent} monogram={mono} names={{ en: namesEn, ar: namesAr }} guestName={guestName} dateText={dateText}
-          t={t} whoText={d.guest?.name ?? t.ourGuests} replayToken={replay} onBegin={onBegin} onDone={onDone} />
+        {d.art.cover
+          ? <PhotoOpening interaction={d.theme.interaction} cover={d.art.cover} reveal={d.art.reveal ?? null} texture={d.art.texture ?? null} accent={d.accent} script={d.theme.fonts.script} monogram={mono}
+              t={t} whoText={d.guest?.name ?? t.ourGuests} replayToken={replay} reducedMotion={reducedMotion} onBegin={onBegin} onDone={onDone} />
+          : <Opening theme={d.theme} accent={d.accent} monogram={mono} names={{ en: namesEn, ar: namesAr }} guestName={guestName} dateText={dateText}
+              t={t} whoText={d.guest?.name ?? t.ourGuests} replayToken={replay} onBegin={onBegin} onDone={onDone} />}
       </div>
       <div className={`inv-flash${flash ? " on" : ""}`} />
 
       {stage === "open" && (
         <main className="inv-col">
-          <section className="dark inv-hero">
+          <section className={`dark inv-hero${d.art.reveal ? " art" : ""}`}>
+            {d.art.reveal && <div className="bg" style={{ backgroundImage: `url(${d.art.reveal})` }} aria-hidden="true" />}
+            {!d.art.reveal && <div className="sparks" aria-hidden="true">{Array.from({ length: 14 }, (_, i) => <i key={i} style={{ left: `${(i * 37) % 100}%`, animationDelay: `${(i * 0.73) % 6}s`, animationDuration: `${7 + (i % 5)}s` }} />)}</div>}
             {c.verse && <div className="inv-bism reveal" lang="ar">بسم الله الرحمن الرحيم</div>}
             <div className="inv-kicker reveal">{t.together}</div>
             <h1 className="inv-names reveal">
@@ -117,24 +126,25 @@ export function Invitation({ data: d }: { data: InvitationData }) {
             <div className="inv-cue" aria-hidden="true"><span>{t.scroll}</span><i /></div>
           </section>
 
-          <section className="light">
+          {c.sections.letter && pick(c.letter, lang) && (
+            <CurtainLetter text={pick(c.letter, lang)} guest={d.guest?.name ?? null} signature={lang === "ar" && namesAr ? namesAr : namesEn} texture={d.art.texture ?? null} t={t} lang={lang} />
+          )}
+
+          <section className="light grain">
             <div className="inv-kicker reveal">{t.saveDate}</div>
-            <div className="inv-date reveal">
-              <div className="side">{fmt({ weekday: "long" })}</div>
-              <div className="inv-disc"><b>{fmt({ day: "numeric" })}</b><span>{fmt({ month: "short" }).toUpperCase()}</span></div>
-              <div className="side">{fmt({ year: "numeric" })}</div>
-            </div>
-            <div className="inv-time reveal">{fmt({ hour: "numeric", minute: "2-digit" })}</div>
-            {c.sections.countdown && <Countdown to={start.getTime()} lang={lang} labels={[t.days, t.hours, t.mins, t.secs]} />}
-            <div className="inv-cal reveal">
-              <a className="inv-btn line" href={d.calendar.google} target="_blank" rel="noopener noreferrer">{t.gcal}</a>
-              <a className="inv-btn line" href={d.calendar.outlook} target="_blank" rel="noopener noreferrer">{t.ocal}</a>
-              <a className="inv-btn line" href={d.calendar.ics}>{t.ical}</a>
-            </div>
+            <SealDate weekday={fmt({ weekday: "long" })} day={fmt({ day: "numeric" })} month={fmt({ month: "short" }).toUpperCase()} year={fmt({ year: "numeric" })}
+              time={fmt({ hour: "numeric", minute: "2-digit" })} monogram={mono} accent={d.accent} script={d.theme.fonts.script} t={t}>
+              {c.sections.countdown && <Countdown to={start.getTime()} lang={lang} labels={[t.days, t.hours, t.mins, t.secs]} />}
+              <div className="inv-cal reveal">
+                <a className="inv-btn line" href={d.calendar.google} target="_blank" rel="noopener noreferrer">{t.gcal}</a>
+                <a className="inv-btn line" href={d.calendar.outlook} target="_blank" rel="noopener noreferrer">{t.ocal}</a>
+                <a className="inv-btn line" href={d.calendar.ics}>{t.ical}</a>
+              </div>
+            </SealDate>
           </section>
 
           {c.sections.schedule && c.schedule.length > 0 && (
-            <section className="light2">
+            <section className="light2 grain">
               <div className="inv-kicker reveal">{t.evening}</div>
               <div className="inv-sched reveal">
                 {c.schedule.map((s, i) => <div key={i} className="row"><div className="t">{digits(s.time, lang)}</div><div className="w"><b>{pick(s.title, lang)}</b><span>{pick(s.detail, lang)}</span></div></div>)}
@@ -143,20 +153,31 @@ export function Invitation({ data: d }: { data: InvitationData }) {
           )}
 
           {c.sections.venue && (pick(c.venue.name, lang) || c.venue.mapUrl) && (
-            <section className="light">
+            <section className="dark inv-venue-sec">
               <div className="inv-kicker reveal">{t.venue}</div>
-              <div className="inv-venue reveal">{pick(c.venue.name, lang)}</div>
-              <div className="reveal" style={{ fontSize: 14, color: "var(--muted)" }}>{pick(c.venue.address, lang)}</div>
-              <div className="inv-map reveal" aria-hidden="true"><div className="inv-pin" /></div>
-              {c.venue.mapUrl && <a className="inv-btn ink block reveal" href={c.venue.mapUrl} target="_blank" rel="noopener noreferrer">{t.directions}</a>}
+              <LightRoom image={d.art.venue ?? null} fallback={<HallArt accent={d.accent} />} t={t}>
+                <div className="inv-venue">{pick(c.venue.name, lang)}</div>
+                <div className="addr">{pick(c.venue.address, lang)}</div>
+              </LightRoom>
+              {c.venue.mapUrl && <a className="inv-btn gold block reveal" href={c.venue.mapUrl} target="_blank" rel="noopener noreferrer">{t.directions}</a>}
+            </section>
+          )}
+
+          {c.sections.dress && (pick(c.dressCode.title, lang) || c.dressCode.colors.length > 0 || d.art.dressHer || d.art.dressHim) && (
+            <section className="light grain">
+              <DressCode title={pick(c.dressCode.title, lang)} note={pick(c.dressCode.note, lang)} colors={c.dressCode.colors} her={d.art.dressHer ?? null} him={d.art.dressHim ?? null} t={t} lang={lang} />
             </section>
           )}
 
           {c.sections.notices && notices.length > 0 && (
-            <section className="light2">
+            <section className="light2 grain">
               <div className="inv-kicker reveal">{t.kindly}</div>
-              <div className="inv-notes">{notices.map((n) => <div key={n.id} className="inv-note reveal"><NoticeIcon kind={n.kind} /><span>{pick(n.text, lang)}</span></div>)}</div>
+              <SwipeNotices items={notices.map((n) => ({ id: n.id, icon: <NoticeIcon kind={n.kind} />, text: pick(n.text, lang) }))} t={t} lang={lang} />
             </section>
+          )}
+
+          {c.sections.faq && c.faq.length > 0 && (
+            <section className="light grain"><Faq items={c.faq} t={t} lang={lang} /></section>
           )}
 
           {c.sections.gallery && d.gallery.length > 0 && (
@@ -172,6 +193,13 @@ export function Invitation({ data: d }: { data: InvitationData }) {
               <Rsvp d={d} t={t} lang={lang} dateLabel={fmt({ weekday: "short", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })} />
             </section>
           )}
+
+          {c.sections.closing && (
+            <section className="dark">
+              <Closing image={d.closingPhoto ?? d.art.closing ?? null} names={lang === "ar" && namesAr ? namesAr : namesEn} monogram={mono} accent={d.accent} script={d.theme.fonts.script} t={t} />
+            </section>
+          )}
+          {d.rsvp.enabled && <StickyReply label={t.kindlyReply} />}
 
           <footer className="inv-foot">
             <div className="by">{t.crafted}</div>

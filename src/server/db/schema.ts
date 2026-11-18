@@ -87,6 +87,7 @@ export const themes = pgTable("themes", {
   tier: tierEnum("tier").notNull(),
   active: boolean("active").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
+  art: jsonb("art").$type<Record<string, string>>().notNull().default({}), // slot → media asset id
   updatedAt: updatedAt(),
 });
 

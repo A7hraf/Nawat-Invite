@@ -68,7 +68,23 @@ export async function saveContentAction(_: ActionState, fd: FormData): Promise<A
       const title = bi(fd, `s${i}.title`);
       if (time || title.en || title.ar) content.schedule.push({ time, title, detail: bi(fd, `s${i}.detail`) });
     }
-    content.sections = { countdown: bool(fd, "sec.countdown"), schedule: bool(fd, "sec.schedule"), venue: bool(fd, "sec.venue"), notices: bool(fd, "sec.notices"), gallery: bool(fd, "sec.gallery") };
+    content.sections = {
+      countdown: bool(fd, "sec.countdown"), schedule: bool(fd, "sec.schedule"), venue: bool(fd, "sec.venue"), notices: bool(fd, "sec.notices"), gallery: bool(fd, "sec.gallery"),
+      letter: bool(fd, "sec.letter"), dress: bool(fd, "sec.dress"), faq: bool(fd, "sec.faq"), closing: bool(fd, "sec.closing"),
+    };
+    content.letter = { en: str(fd, "letter.en").trim().slice(0, 900), ar: str(fd, "letter.ar").trim().slice(0, 900) };
+    const colors: typeof content.dressCode.colors = [];
+    for (let i = 0; i < 6; i++) {
+      const hex = str(fd, `dc${i}.hex`).trim();
+      const name = bi(fd, `dc${i}.name`);
+      if (bool(fd, `dc${i}.on`) && /^#[0-9a-fA-F]{6}$/.test(hex)) colors.push({ hex, name });
+    }
+    content.dressCode = { title: bi(fd, "dress.title"), note: bi(fd, "dress.note"), colors };
+    content.faq = [];
+    for (let i = 0; i < 6; i++) {
+      const q = bi(fd, `q${i}.q`); const a = bi(fd, `q${i}.a`);
+      if ((q.en || q.ar) && (a.en || a.ar)) content.faq.push({ q, a });
+    }
     const locales = (["ar", "en"] as const).filter((l) => bool(fd, `loc.${l}`));
     content.locales = locales.length ? locales : ["ar"];
     content.defaultLocale = str(fd, "defaultLocale") === "en" ? "en" : "ar";
@@ -167,6 +183,33 @@ export async function uploadPhotoAction(_: ActionState, fd: FormData): Promise<A
     back(ev.id, "/photos");
     return { ok: "Photo added" };
   });
+}
+
+export async function uploadClosingPhotoAction(_: ActionState, fd: FormData): Promise<ActionState> {
+  return run(async () => {
+    const { ctx, ev, actor } = await writableEvent(str(fd, "eventId"));
+    if (ctx.ent.media.photos === 0) throw new EntitlementError("media.photos", "Your plan does not include photos.");
+    const content = parseContent(ev.content);
+    const asset = await saveUpload(fd.get("file") as File, "IMAGE", ctx.account.id, ctx.ent.media.storageMb);
+    const old = content.closingPhoto;
+    content.closingPhoto = asset.id;
+    content.sections.closing = true;
+    await saveContent(actor, ev, ctx.ent, content, {});
+    if (old) await deleteAsset(old, ctx.account.id);
+    back(ev.id, "/photos");
+    return { ok: "Closing photo saved" };
+  });
+}
+
+export async function removeClosingPhotoAction(fd: FormData) {
+  const { ctx, ev, actor } = await writableEvent(str(fd, "eventId"));
+  const content = parseContent(ev.content);
+  const old = content.closingPhoto;
+  if (!old) return;
+  content.closingPhoto = null;
+  await saveContent(actor, ev, ctx.ent, content, {});
+  await deleteAsset(old, ctx.account.id);
+  back(ev.id, "/photos");
 }
 
 export async function removePhotoAction(fd: FormData) {

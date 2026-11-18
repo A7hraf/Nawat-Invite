@@ -16,7 +16,8 @@ import { saveUpload } from "@/server/storage";
 import { BrandSettingsSchema, saveBrandSettings } from "@/server/settings";
 import { hashPassword } from "@/server/auth/password";
 import { oneTimePassword } from "@/server/crypto";
-import { themeBySlug } from "@/themes/catalog";
+import { ART_SLOTS, themeBySlug } from "@/themes/catalog";
+import { deleteAsset } from "@/server/storage";
 
 const Id = z.string().uuid();
 
@@ -183,4 +184,37 @@ export async function setUserStatusAction(fd: FormData) {
   await db.update(schema.users).set({ status }).where(and(eq(schema.users.id, userId), eq(schema.users.role, "STAFF")));
   await audit(actorOf(c), "staff.status", "user", userId, { status });
   revalidatePath("/admin/team");
+}
+
+export async function uploadThemeArtAction(_: ActionState, fd: FormData): Promise<ActionState> {
+  return run(async () => {
+    const c = await requireStaff();
+    const slug = str(fd, "slug");
+    const slot = z.enum(ART_SLOTS).parse(str(fd, "slot"));
+    if (!themeBySlug(slug)) throw new UserError("Unknown theme");
+    const asset = await saveUpload(fd.get("file") as File, "IMAGE", null, undefined, 2400);
+    const db = await getDb();
+    const row = await db.query.themes.findFirst({ where: eq(schema.themes.slug, slug) });
+    const old = row?.art?.[slot];
+    await db.update(schema.themes).set({ art: { ...(row?.art ?? {}), [slot]: asset.id } }).where(eq(schema.themes.slug, slug));
+    if (old) await deleteAsset(old, null);
+    await audit(actorOf(c), "theme.art_upload", "theme", slug, { slot });
+    revalidatePath(`/admin/themes/${slug}`);
+    return { ok: "Artwork saved. Every invitation using this theme shows it now." };
+  });
+}
+
+export async function removeThemeArtAction(fd: FormData) {
+  const c = await requireStaff();
+  const slug = str(fd, "slug");
+  const slot = z.enum(ART_SLOTS).parse(str(fd, "slot"));
+  const db = await getDb();
+  const row = await db.query.themes.findFirst({ where: eq(schema.themes.slug, slug) });
+  const id = row?.art?.[slot];
+  if (!row || !id) return;
+  const next = { ...row.art }; delete next[slot];
+  await db.update(schema.themes).set({ art: next }).where(eq(schema.themes.slug, slug));
+  await deleteAsset(id, null);
+  await audit(actorOf(c), "theme.art_remove", "theme", slug, { slot });
+  revalidatePath(`/admin/themes/${slug}`);
 }

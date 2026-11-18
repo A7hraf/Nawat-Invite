@@ -6,7 +6,7 @@ import { UserError } from "@/lib/errors";
 import { getDb, schema } from "./db";
 import { env } from "./env";
 
-const MAX_IMAGE = 8 * 1024 * 1024;
+const MAX_IMAGE = 15 * 1024 * 1024;
 const MAX_AUDIO = 10 * 1024 * 1024;
 
 /** Identify a file by its first bytes, never by its name or the browser's claim. */
@@ -38,7 +38,7 @@ export async function storageUsed(accountId: string) {
  *  - images are decoded and re-encoded to WebP (strips EXIF/GPS, defeats polyglot files)
  *  - audio must be real MP3/M4A
  */
-export async function saveUpload(file: File, expect: "IMAGE" | "AUDIO", accountId: string | null, quotaMb?: number) {
+export async function saveUpload(file: File, expect: "IMAGE" | "AUDIO", accountId: string | null, quotaMb?: number, maxDimension = 2000) {
   if (!(file instanceof File) || file.size === 0) throw new UserError("Choose a file to upload");
   const limit = expect === "IMAGE" ? MAX_IMAGE : MAX_AUDIO;
   if (file.size > limit) throw new UserError(`The file is too large (max ${limit / 1024 / 1024} MB)`);
@@ -52,7 +52,7 @@ export async function saveUpload(file: File, expect: "IMAGE" | "AUDIO", accountI
   let mime = type.mime, ext = type.ext, width: number | null = null, height: number | null = null;
   if (expect === "IMAGE") {
     const sharp = (await import("sharp")).default;
-    const out = await sharp(buf, { limitInputPixels: 50_000_000 }).rotate().resize({ width: 2000, height: 2000, fit: "inside", withoutEnlargement: true }).webp({ quality: 82 }).toBuffer({ resolveWithObject: true });
+    const out = await sharp(buf, { limitInputPixels: 50_000_000 }).rotate().resize({ width: maxDimension, height: maxDimension, fit: "inside", withoutEnlargement: true }).webp({ quality: maxDimension > 2000 ? 86 : 82 }).toBuffer({ resolveWithObject: true });
     buf = out.data; mime = "image/webp"; ext = "webp"; width = out.info.width; height = out.info.height;
   }
   const id = crypto.randomUUID();

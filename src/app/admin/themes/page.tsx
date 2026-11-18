@@ -15,7 +15,7 @@ export default async function ThemesPage() {
   const brand = await getBrandSettings();
   return (
     <>
-      <div className="stack-sm"><div className="kicker">Control Room</div><h1>Themes</h1><p className="muted" style={{ margin: 0 }}>Choose which tier unlocks each theme, hide a theme, or preview it with sample content.</p></div>
+      <div className="stack-sm"><div className="kicker">Control Room</div><h1>Themes</h1><p className="muted" style={{ margin: 0 }}>Choose which tier unlocks each theme, hide a theme, upload its artwork, or preview it with sample content.</p></div>
       <div className="grid-3">
         {THEMES.map((t) => {
           const r = rows.get(t.slug);
@@ -34,7 +34,10 @@ export default async function ThemesPage() {
                   <Switch name="active" defaultChecked={r?.active ?? true} label={`${t.name.en} visible`} />
                   <button className="btn btn-ghost btn-sm" type="submit">Save</button>
                 </form>
-                <a className="small" href={`/preview/${t.slug}`} target="_blank" rel="noopener">Preview with sample content</a>
+                <div className="row between small">
+                  <a href={`/admin/themes/${t.slug}`}>Artwork · {Object.keys(r?.art ?? {}).length} of 7</a>
+                  <a href={`/preview/${t.slug}`} target="_blank" rel="noopener">Preview</a>
+                </div>
               </div>
             </div>
           );

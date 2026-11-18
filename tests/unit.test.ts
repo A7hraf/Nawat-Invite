@@ -5,7 +5,8 @@ import { csvCell, parseCsv } from "@/lib/csv";
 import { decrypt, encrypt, lookupHash, oneTimePassword, randomKey } from "@/server/crypto";
 import { extractPassKey } from "@/server/services/gate";
 import { fillParts } from "@/components/invitation/i18n";
-import { THEMES } from "@/themes/catalog";
+import { ART_SLOTS, ART_SLOT_INFO, THEMES } from "@/themes/catalog";
+import { EventContentSchema } from "@/lib/event-content";
 
 describe("entitlements", () => {
   it("every default plan is valid", () => {
@@ -79,5 +80,24 @@ describe("themes", () => {
     expect(new Set(THEMES.map((t) => t.slug)).size).toBe(10);
     expect(new Set(THEMES.map((t) => t.tier))).toEqual(new Set(["IVORY", "GILDED", "ROYAL_SEAL"]));
     expect(new Set(THEMES.map((t) => t.opening))).toEqual(new Set(["envelope", "doors", "curtain", "box"]));
+  });
+  it("gives every theme a script font, an interaction and documented art slots", () => {
+    for (const t of THEMES) { expect(t.fonts.script).toBeTruthy(); expect(["seal", "ribbon", "gatefold", "curtain"]).toContain(t.interaction); }
+    for (const s of ART_SLOTS) expect(ART_SLOT_INFO[s].label).toBeTruthy();
+  });
+  it("reads invitations saved before the v2 sections existed", () => {
+    const old = { partner1: { en: "A", ar: "" }, partner2: { en: "B", ar: "" }, families: { en: "", ar: "" }, message: { en: "", ar: "" },
+      venue: { name: { en: "", ar: "" }, address: { en: "", ar: "" } }, sections: { countdown: true, schedule: true, venue: true, notices: true, gallery: false },
+      locales: ["ar"], defaultLocale: "ar", music: { trackId: null }, gallery: [] };
+    const c = EventContentSchema.parse(old);
+    expect(c.sections.letter).toBe(true);
+    expect(c.sections.dress).toBe(false);
+    expect(c.faq).toEqual([]);
+    expect(c.dressCode.colors).toEqual([]);
+    expect(c.closingPhoto).toBeNull();
+  });
+  it("rejects dress-code colours that are not hex", () => {
+    const r = EventContentSchema.shape.dressCode.safeParse({ title: { en: "", ar: "" }, note: { en: "", ar: "" }, colors: [{ hex: "red;background:url(x)", name: { en: "", ar: "" } }] });
+    expect(r.success).toBe(false);
   });
 });

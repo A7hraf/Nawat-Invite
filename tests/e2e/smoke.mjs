@@ -5,6 +5,7 @@
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright-core";
+import sharp from "sharp";
 import { Secret, TOTP } from "otpauth";
 
 const BASE = process.env.BASE_URL ?? "http://localhost:3000";
@@ -19,6 +20,14 @@ const desktop = { viewport: { width: 1440, height: 1000 } };
 const phone = { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true };
 const errors = [];
 const watch = (p, label) => { p.on("pageerror", (e) => errors.push(`${label}: ${e.message}`)); p.on("console", (m) => { if (m.type() === "error" && !/fonts\.g|Failed to load resource/.test(m.text())) errors.push(`${label}: ${m.text()}`); }); };
+/** Opens an invitation whichever opening it has: hold the wax seal, tap a photo opening, or tap the 3D scene. */
+const openInvitation = async (pg) => {
+  if (await pg.locator(".k-seal").count()) {
+    const bb = await pg.locator(".ph-seal").boundingBox();
+    await pg.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2); await pg.mouse.down(); await pg.waitForTimeout(1400); await pg.mouse.up();
+  } else if (await pg.locator(".inv-photo").count()) await pg.locator(".inv-photo .inv-ui .hint .big, .ph-seal").first().click();
+  else await pg.mouse.click(195, 450);
+};
 const shot = (p, n, full = false) => p.screenshot({ path: `${OUT}/${n}.png`, fullPage: full });
 
 // ── 1. Admin first sign-in: 2FA enrolment + password change
@@ -82,6 +91,23 @@ for (const pth of ["/admin/plans", "/admin/themes", "/admin/music", "/admin/audi
 }
 await shot(a, "07-admin-themes", true);
 
+// ── 2b. Theme artwork: upload an opening cover, see the photo opening, then remove it
+const testPng = await sharp({ create: { width: 900, height: 1600, channels: 3, background: { r: 120, g: 90, b: 60 } } }).png().toBuffer();
+await a.goto(`${BASE}/admin/themes/vellum-garden`);
+await a.setInputFiles("#f-cover", { name: "cover.png", mimeType: "image/png", buffer: testPng });
+await a.locator("form:has(#f-cover) button[type=submit]").click();
+await a.waitForSelector("text=Artwork saved");
+ok("Admin uploads theme artwork", (await a.locator("text=Uploaded").count()) >= 1);
+await shot(a, "07b-admin-theme-art", true);
+await a.goto(`${BASE}/preview/vellum-garden`);
+await a.waitForTimeout(1500);
+ok("Theme with cover artwork uses the photo opening", (await a.locator(".inv-photo.k-seal").count()) === 1);
+await a.goto(`${BASE}/admin/themes/vellum-garden`);
+await a.locator("form:has(input[name=slot][value=cover]) >> text=Remove").click();
+await a.waitForLoadState("networkidle");
+ok("Admin removes theme artwork", (await a.locator("text=Uploaded").count()) === 0);
+const evil = await a.goto(`${BASE}/admin/themes/not-a-theme`); ok("Unknown theme artwork page is 404", evil.status() === 404);
+
 // ── 3. Manage as client → studio
 await a.goto(saraAdminUrl);
 await a.click("text=Manage as client");
@@ -113,7 +139,7 @@ const g = await gctx.newPage(); watch(g, "guest");
 await g.goto(guestLink.replace(/^https?:\/\/[^/]+/, BASE));
 await g.waitForTimeout(5000);
 await shot(g, "20-guest-opening");
-await g.mouse.click(195, 450);
+await openInvitation(g);
 await g.waitForTimeout(2200);
 await shot(g, "21-guest-opening-mid");
 await g.waitForSelector(".inv-hero", { timeout: 30000 });
@@ -201,7 +227,7 @@ for (const t of themes) {
   await tp.goto(`${BASE}/preview/${t}`);
   await tp.waitForTimeout(4500);
   await shot(tp, `50-theme-${t}-a`);
-  await tp.mouse.click(195, 450);
+  await openInvitation(tp);
   await tp.waitForTimeout(2300);
   await shot(tp, `50-theme-${t}-b`);
   await tp.waitForSelector(".inv-hero", { timeout: 30000 }).catch(() => undefined);

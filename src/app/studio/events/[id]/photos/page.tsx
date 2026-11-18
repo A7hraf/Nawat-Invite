@@ -3,7 +3,7 @@ import { studioEvent } from "@/server/studio";
 import { mediaUrl } from "@/server/storage";
 import { parseContent } from "@/lib/event-content";
 import { ActionForm, SubmitButton } from "@/components/ui/form";
-import { removePhotoAction, uploadPhotoAction } from "../../../actions";
+import { removeClosingPhotoAction, removePhotoAction, uploadClosingPhotoAction, uploadPhotoAction } from "../../../actions";
 
 export default async function PhotosPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -13,6 +13,21 @@ export default async function PhotosPage({ params }: { params: Promise<{ id: str
   const full = c.gallery.length >= ctx.ent.media.photos;
   return (
     <div className="stack">
+      <section className="card row between" style={{ alignItems: "flex-start", flexWrap: "wrap", gap: 20 }}>
+        <div className="stack-sm" style={{ maxWidth: 460 }}>
+          <h2>Closing photo</h2>
+          <div className="small muted">The last image your guests see, under a thank-you line. Portrait works best. Without one, the theme’s own closing artwork is used.</div>
+          <ActionForm action={uploadClosingPhotoAction} className="row" resetOnOk>
+            <input type="hidden" name="eventId" value={ev.id} />
+            <label className="sr-only" htmlFor="closing-file">Closing photo</label>
+            <input className="input" style={{ paddingTop: 10, width: 280 }} id="closing-file" name="file" type="file" accept="image/jpeg,image/png,image/webp,image/heic" required />
+            <SubmitButton pending="Uploading…">{c.closingPhoto ? "Replace" : "Upload"}</SubmitButton>
+          </ActionForm>
+          {c.closingPhoto && <form action={removeClosingPhotoAction}><input type="hidden" name="eventId" value={ev.id} /><button className="btn btn-danger btn-sm" type="submit">Remove closing photo</button></form>}
+        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {c.closingPhoto && <img src={mediaUrl(c.closingPhoto)} alt="Closing" style={{ width: 160, aspectRatio: "4/5", objectFit: "cover", borderRadius: 14 }} />}
+      </section>
       <section className="card row between">
         <div className="stack-sm"><h2>Gallery</h2><div className="small muted">{c.gallery.length} of {ctx.ent.media.photos} photos. Photos are resized and their location data is removed.</div></div>
         {!full && (

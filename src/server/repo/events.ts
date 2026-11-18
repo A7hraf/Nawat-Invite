@@ -62,7 +62,7 @@ export function enforceContent(content: EventContent, ent: Entitlements): EventC
   if (!c.locales.includes(c.defaultLocale)) c.defaultLocale = c.locales[0]!;
   if (!ent.music.enabled) c.music.trackId = null;
   c.gallery = c.gallery.slice(0, ent.media.photos);
-  if (ent.media.photos === 0) c.sections.gallery = false;
+  if (ent.media.photos === 0) { c.sections.gallery = false; c.closingPhoto = null; }
   return c;
 }
 

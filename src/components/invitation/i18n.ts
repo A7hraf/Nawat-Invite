@@ -16,6 +16,10 @@ const en = {
   greetOpen: "You may bring up to {n} companion(s).", greetSolo: "This invitation is for you personally.",
   closed: "Replies are closed. Thank you.", previewNote: "Preview: replies are disabled here.", required: "is required", errPhone: "Please enter a valid phone number", errAck: "Please confirm to continue",
   sending: "Sending…", error: "Something went wrong. Please try again.", musicOn: "Music on", musicOff: "Music off", lang: "العربية",
+  holdSeal: "Press and hold the seal", keepHolding: "Keep holding…", untie: "Untie the ribbon", partCurtain: "Part the curtain", openGate: "Open the invitation",
+  letterKicker: "A letter for you", dear: "Dear", scrollOpen: "SCROLL TO OPEN", revealDate: "Reveal the date", holdDate: "Press and hold the seal to reveal the date",
+  lightRoom: "Move your finger to light the room", swipe: "Swipe the card", next: "Next", readAgain: "Read again", noticesDone: "Thank you for keeping these in mind.",
+  dressCode: "Dress code", her: "For her", him: "For him", faq: "Good to know", withLove: "With love,", closingLine: "We can’t wait to celebrate with you.",
 };
 
 const ar: typeof en = {
@@ -34,6 +38,10 @@ const ar: typeof en = {
   greetOpen: "يمكنك اصطحاب حتى {n} مرافقين.", greetSolo: "هذه الدعوة خاصة بك.",
   closed: "انتهى وقت الرد. شكراً لكم.", previewNote: "معاينة: الرد غير مفعّل هنا.", required: "مطلوب", errPhone: "يرجى إدخال رقم هاتف صحيح", errAck: "يرجى التأكيد للمتابعة",
   sending: "جارٍ الإرسال…", error: "حدث خطأ. حاول مرة أخرى.", musicOn: "الموسيقى تعمل", musicOff: "الموسيقى متوقفة", lang: "English",
+  holdSeal: "اضغط مطوّلاً على الختم", keepHolding: "استمر بالضغط…", untie: "فُكّ الشريطة", partCurtain: "أزح الستارة", openGate: "افتح الدعوة",
+  letterKicker: "رسالة إليك", dear: "عزيزنا", scrollOpen: "مرّر للفتح", revealDate: "اكشف التاريخ", holdDate: "اضغط مطوّلاً على الختم لكشف التاريخ",
+  lightRoom: "حرّك إصبعك لإضاءة القاعة", swipe: "اسحب البطاقة", next: "التالي", readAgain: "اقرأ مجدداً", noticesDone: "شكراً لمراعاتكم.",
+  dressCode: "قواعد اللباس", her: "لها", him: "له", faq: "معلومات تهمّك", withLove: "مع خالص الحب،", closingLine: "بانتظاركم لنحتفل معاً.",
 };
 
 export const STRINGS = { en, ar };

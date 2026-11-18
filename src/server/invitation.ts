@@ -7,6 +7,7 @@ import { env } from "./env";
 import { getBrandSettings } from "./settings";
 import { resolveMusic } from "./music";
 import { mediaUrl } from "./storage";
+import { themeArtUrls } from "./themes";
 import { enforceContent, enforceRsvp, type EventRow } from "./repo/events";
 
 type Guest = { name: string; allowedCompanions: number } | null;
@@ -40,7 +41,10 @@ export async function buildInvitationData(ev: EventRow, ent: Entitlements, opts:
     content: {
       partner1: content.partner1, partner2: content.partner2, families: content.families, message: content.message, verse: content.verse,
       venue: content.venue, schedule: content.schedule, sections: content.sections, locales: content.locales, defaultLocale: content.defaultLocale,
+      letter: content.letter, dressCode: content.dressCode, faq: content.faq,
     },
+    art: await themeArtUrls(theme.slug),
+    closingPhoto: content.closingPhoto ? mediaUrl(content.closingPhoto) : null,
     startsAt: ev.startsAt.toISOString(),
     rsvp: {
       enabled: ent.rsvp.enabled, closed: ev.status === "CLOSED" || deadlinePassed, deadline: cfg.deadline, allowChange: cfg.allowChange, qrPass: ent.checkin.qrPass,

@@ -54,10 +54,50 @@ export default async function ContentPage({ params }: { params: Promise<{ id: st
       </section>
 
       <section className="card stack">
+        <h2>The letter</h2>
+        <p className="small muted" style={{ margin: 0 }}>A few warm lines from you, revealed as the curtain parts. Up to 900 characters.</p>
+        <BiField name="letter" label="Letter" value={c.letter} multiline maxLength={900} />
+      </section>
+
+      <section className="card stack">
+        <h2>Dress code</h2>
+        <BiField name="dress.title" label="Title" value={c.dressCode.title} placeholder={{ en: "Black tie", ar: "رسمي" }} maxLength={60} />
+        <BiField name="dress.note" label="Note" value={c.dressCode.note} placeholder={{ en: "Soft earth tones are welcome.", ar: "نرحّب بالألوان الترابية الهادئة." }} maxLength={200} />
+        <div className="stack-sm">
+          <div className="small"><strong>Palette</strong> <span className="muted">· tick the colours to show</span></div>
+          {Array.from({ length: 6 }, (_, i) => {
+            const col = c.dressCode.colors[i];
+            return (
+              <div key={i} className="row" style={{ gap: 12, flexWrap: "wrap" }}>
+                <label className="check" style={{ minWidth: 70 }}><input type="checkbox" name={`dc${i}.on`} defaultChecked={!!col} />Show</label>
+                <input aria-label={`Colour ${i + 1}`} type="color" name={`dc${i}.hex`} defaultValue={col?.hex ?? ["#c9a227", "#efe4cf", "#6b4b3a", "#1c2b3a", "#8a9a7b", "#b76e79"][i]} style={{ width: 48, height: 40, border: 0, background: "none" }} />
+                <input className="input" style={{ flex: "1 1 160px" }} aria-label={`Colour ${i + 1} name in English`} name={`dc${i}.name.en`} defaultValue={col?.name.en ?? ""} placeholder="Champagne" maxLength={30} />
+                <input className="input" style={{ flex: "1 1 160px" }} aria-label={`Colour ${i + 1} name in Arabic`} name={`dc${i}.name.ar`} defaultValue={col?.name.ar ?? ""} placeholder="شامبين" dir="rtl" lang="ar" maxLength={30} />
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="card stack">
+        <h2>Questions guests ask</h2>
+        <p className="small muted" style={{ margin: 0 }}>Parking, timing, gifts. Leave a row empty to hide it.</p>
+        {Array.from({ length: 6 }, (_, i) => c.faq[i] ?? { q: { en: "", ar: "" }, a: { en: "", ar: "" } }).map((f, i) => (
+          <details key={i} className="more" open={i < Math.max(1, c.faq.length)}>
+            <summary>{f.q.en || f.q.ar || `Question ${i + 1}`}</summary>
+            <div className="stack" style={{ paddingTop: 10 }}>
+              <BiField name={`q${i}.q`} label="Question" value={f.q} maxLength={120} />
+              <BiField name={`q${i}.a`} label="Answer" value={f.a} maxLength={300} multiline />
+            </div>
+          </details>
+        ))}
+      </section>
+
+      <section className="card stack">
         <h2>Sections & languages</h2>
         <div className="grid-2">
           <div>
-            {([["countdown", "Live countdown"], ["schedule", "Schedule"], ["venue", "Venue & map"], ["notices", "Notices"], ["gallery", "Photo gallery"]] as const).map(([k, l]) => (
+            {([["letter", "The letter"], ["countdown", "Live countdown"], ["schedule", "Schedule"], ["venue", "Venue & map"], ["dress", "Dress code"], ["notices", "Notices"], ["faq", "Questions"], ["gallery", "Photo gallery"], ["closing", "Closing image"]] as const).map(([k, l]) => (
               <div key={k} className="opt-row"><span className="t">{l}</span><Switch name={`sec.${k}`} defaultChecked={c.sections[k]} label={l} disabled={k === "gallery" && ctx.ent.media.photos === 0} /></div>
             ))}
           </div>

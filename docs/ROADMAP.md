@@ -1,14 +1,24 @@
-# Development roadmap
+# Roadmap
 
-| Phase | Scope | Exit criteria |
-|---|---|---|
-| **0 · Design** ✅ | Architecture, data model, security, entitlements, UI/UX screens | You approve the design |
-| **1 · Foundation** | Next.js monorepo, design-system components (AR/EN + RTL), Prisma + migrations, auth (argon2, sessions, TOTP), RBAC, tenant repo layer, audit log, Docker Compose, CI | Admin can log in with 2FA; CI is green |
-| **2 · Control Room** | Admin: clients (create, issue credentials), plans, entitlement overrides, themes catalogue, music library, settings (footer, tier names) | Admin creates a client who can log in |
-| **3 · Atelier editor** | Theme picker, live editor (sections, texts, colours, fonts, photos, music trials), versioning, publish checks | Client publishes an invitation |
-| **4 · Guest experience** | Public invitation renderer, 3 launch themes (one per tier) with 3D openings and fallbacks, countdown, map, calendar (.ics / Google / Outlook), locked Nawat footer | Lighthouse mobile ≥ 90 and an opening that looks great on a mid-range Android |
-| **5 · RSVP & passes** | RSVP builder (Off / Optional / Required), notices, personal and open links, WhatsApp sharing, QR passes | End-to-end RSVP → pass |
-| **6 · Check-in** | Gatekeeper accounts, scanner PWA (camera, manual lookup, offline queue), live arrival board | 200 scans in 10 minutes with no double entry |
-| **7 · Reports** | Analytics dashboard, PDF (Arabic-correct) and Excel exports, Concierge read-only view | Report matches DB numbers exactly |
-| **8 · Hardening & launch** | Rate limits, CSP, backups, monitoring, ASVS L2 checklist, pen test, production deploy | Go-live |
-| Later | WhatsApp Business API bulk send, Apple/Google Wallet passes, more themes, marketing site, online payments | |
+## v0.1: done ✅
+
+- Admin Control Room: clients, one-time passwords, plans, **per-client feature overrides**, manage-as-client (audited), themes, music library, team, audit log, settings
+- Security: argon2id, mandatory TOTP 2FA for staff (with recovery codes and replay protection), lockout, Postgres rate limits, CSP with nonces, encrypted phone numbers and keys, tenant-scoped data access, same-origin checks
+- Client studio: invitations, bilingual content, reply-form builder (Off / Optional / Required, must-tick notices, custom questions, deadline, open link), music with try limits and uploads, photo gallery, guests (add, CSV import, WhatsApp, copy link), gatekeepers, live arrivals, PDF and Excel reports, view-only Concierge mode
+- Guest invitation: 10 themes, 4 real-time 3D openings, AR/EN RTL, countdown, calendar (Google / Outlook / .ics), map, notices, gallery, music, RSVP, QR pass, locked footer
+- Entrance scanner: camera QR, party admits, double-entry protection, name search
+- Tests: unit + integration (in-memory Postgres), 39-step browser test, CI, Docker
+
+## Next
+
+| Priority | Item |
+|---|---|
+| High | Arabic (RTL) version of the Control Room and Atelier dashboards |
+| High | Bulk WhatsApp sending through the WhatsApp Business Cloud API (needs Meta approval) |
+| High | Automatic deletion or anonymisation of guest data 90 days after the event |
+| Medium | Guest reminders for people who opened but did not reply |
+| Medium | Offline mode for the gate scanner (cached pass list + sync) |
+| Medium | Apple / Google Wallet passes |
+| Medium | Postgres row-level security as a second tenancy wall |
+| Medium | More themes and opening styles (shell, scroll, lantern…) |
+| Later | Marketing website, online payments, custom domains per invitation |

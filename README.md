@@ -1,56 +1,64 @@
 # Nawat Invites · نوات للدعوات
 
-**A luxury platform for 3D digital wedding and engagement invitations, sent as a link.**
+**A luxury platform for 3D digital wedding and engagement invitations, sent as a personal link.**
 
-Guests open a personal link. A cinematic 3D opening plays (a wax-sealed envelope, palace doors or a velvet curtain). Then the invitation itself appears, with names, date, venue, schedule and RSVP. Confirmed guests get a QR entry pass, and a gatekeeper scans it at the door.
+Guests open their link. A real-time 3D opening plays (a wax-sealed envelope, carved palace doors, a velvet curtain or a jewel box), then the invitation itself, then a reply form. Attending guests get a QR entry pass, and gatekeepers scan it at the door. Hosts follow everything live and download PDF and Excel reports.
 
-> Status: **Phase 0: Design and architecture** (this commit). Development starts next. See [`docs/ROADMAP.md`](docs/ROADMAP.md).
+**Status:** v0.1, a fully working system (admin, client studio, guest invitations, 10 themes, RSVP, QR entry, reports). See [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
----
+## Quick start (local, no database server needed)
 
-## Who uses it
+```bash
+npm install
+cp .env.example .env                 # then set APP_SECRET:  openssl rand -base64 48
+npm run setup                        # creates the local database + plans, themes, music, first admin
+npm run dev                          # http://localhost:3000
+```
 
-| Role | What they do |
-|---|---|
-| **System Admin** (Nawat) | Creates client accounts and gives them a username and password. Assigns a tier and package, turns any feature on or off per client, can manage any invitation on a client's behalf, and exports PDF and Excel reports. Has every feature. |
-| **Host / Client** (the couple or family) | Logs in to the **Atelier** dashboard, picks a ready theme, customises everything, adds guests, sends links and watches RSVPs arrive. Can do only what their entitlements allow. |
-| **Gatekeeper** (venue staff) | Gets a scanner-only login for one event. Scans guest QR passes at the entrance. |
-| **Guest** | Opens the link, enjoys the 3D opening, confirms attendance, adds the event to their calendar and gets a QR pass. No account needed. |
+The first admin's username and one-time password are printed by `npm run setup`. At first sign-in you set up 2-step verification (any authenticator app) and choose a new password. Set `SEED_DEMO=1` before `npm run setup` to also create two demo clients with a published invitation.
 
-## Tiers (theme levels)
+Locally the app uses **PGlite**, an embedded PostgreSQL, so nothing needs to be installed. Only one process may open it at a time. Production uses a real PostgreSQL server (see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)).
 
-These names follow the invitation itself: card, then envelope, then seal. They can be renamed in the admin panel.
+## What's inside
 
-| Tier | Arabic | Feel |
+| Area | Who | Highlights |
 |---|---|---|
-| **Ivory** | العاجي | Elegant animated card: clean openings and classic themes |
-| **Gilded** | المذهّب | Gold-foil themes, 3D envelope and door openings, music |
-| **Royal Seal** | الختم الملكي | Cinematic 3D scenes, every theme, every feature |
+| **Control Room** `/admin` | System Admin, staff | Create client accounts with one-time passwords. Plans by tier × package. Turn **any feature or limit on or off per client** (overrides). Manage any invitation as the client (audited). Theme tiers and visibility, music library, team, audit log, footer and tier-name settings. |
+| **Atelier** `/studio` | Clients (hosts) | Invitations: theme, bilingual details, schedule, venue. Reply form builder (each field Off / Optional / Required, notices that must be ticked, custom questions, deadline, open link). Music with try limits, photos, guest list with WhatsApp sending and CSV import, gatekeeper logins, live arrivals, PDF/Excel reports. Concierge clients get a view-only studio. |
+| **Invitation** `/i/<event>/<guest-key>` | Guests | 3D opening, Arabic/English (RTL), countdown, calendar (Google, Outlook, Apple .ics), map, notices, gallery, music, RSVP, QR pass, locked Nawat footer. |
+| **Entrance** `/gate/<event>` | Gatekeepers, hosts | Camera QR scanning, party-size admits, blocks double entry, name search, live counter. |
 
-## Packages
+## Tiers and packages
 
-| Package | Who builds the invitation | Client dashboard |
+| Tier | Arabic | Opens with |
 |---|---|---|
-| **Atelier** (self-service) | The client builds it in their dashboard | Full editor plus guests and RSVP analytics, limited by entitlements |
-| **Concierge** (done-for-you) | The Nawat team builds and manages it | Optional read-only view: live RSVP numbers plus PDF and Excel reports |
+| **Ivory** | العاجي | Animated envelope themes |
+| **Gilded** | المذهّب | Palace doors, pearl jewel box, velvet curtain, music, QR entry |
+| **Royal Seal** | الختم الملكي | Signature cinematic themes, every feature |
+
+**Atelier** means the client builds the invitation themselves. **Concierge** means Nawat builds it, and the client sees live numbers and reports. Every value can be changed per plan and per client.
+
+## Tech
+
+Next.js 16 · React 19 · TypeScript (strict) · PostgreSQL + Drizzle ORM · Three.js · Zod · argon2id · TOTP 2FA · sharp · ExcelJS · headless Chromium for Arabic-correct PDFs.
+
+```bash
+npm run typecheck     # TypeScript
+npm test              # unit + integration tests (in-memory Postgres)
+node tests/e2e/smoke.mjs   # 39-step browser test against a running server
+```
 
 ## Documentation
 
-1. [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): system architecture, stack, modules and request flows
-2. [`docs/ENTITLEMENTS.md`](docs/ENTITLEMENTS.md): how the admin controls every feature per client
-3. [`docs/GUEST-FLOW.md`](docs/GUEST-FLOW.md): invitation, RSVP builder, calendar, QR pass and check-in
-4. [`docs/SECURITY.md`](docs/SECURITY.md): threat model and security controls
-5. [`docs/DESIGN-SYSTEM.md`](docs/DESIGN-SYSTEM.md): visual language, tokens and screen map
-6. [`docs/ROADMAP.md`](docs/ROADMAP.md): development phases
-7. [`prisma/schema.prisma`](prisma/schema.prisma): database schema (draft)
-8. [`design/`](design/): UI/UX design screens
+- [Architecture](docs/ARCHITECTURE.md)
+- [Entitlements](docs/ENTITLEMENTS.md)
+- [Guest flow](docs/GUEST-FLOW.md)
+- [Security](docs/SECURITY.md)
+- [Themes](docs/THEMES.md)
+- [Design system](docs/DESIGN-SYSTEM.md)
+- [Deployment](docs/DEPLOYMENT.md)
+- [Roadmap](docs/ROADMAP.md)
 
-## Fixed invitation footer
+## Invitation footer (enforced on every invitation)
 
-Every invitation shows a footer that the platform enforces. Clients cannot remove it.
-
-- Website: https://nawat.om/
-- Instagram: https://www.instagram.com/nawattech/
-- Phone: +968 923344233 *(check this number: Omani numbers have 8 digits after +968, and this one has 9)*
-
-These values live in `config/brand.ts` (one place to change).
+[nawat.om](https://nawat.om/) · [@nawattech](https://www.instagram.com/nawattech/) · +968 923344233. Editable in Control Room → Settings. *Check the phone number: Omani numbers have 8 digits after +968, and this one has 9.*

@@ -1,5 +1,7 @@
 # Entitlements: how the admin controls every feature
 
+> Source of truth: [`src/lib/entitlements.ts`](../src/lib/entitlements.ts) (schema, defaults, merge rules). The admin edits every value in Control Room → Plans and per client.
+
 Every client feature is a typed **entitlement**. A client's effective entitlements are:
 
 ```

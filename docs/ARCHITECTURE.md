@@ -7,26 +7,22 @@
 - **Simple to run.** A small team must be able to host it on one VPS with Docker, and scale it later without a rewrite.
 - **Secure by default.** Wedding guest lists hold personal data (names and phone numbers). See [SECURITY.md](SECURITY.md).
 
-## 2. Tech stack
+## 2. Tech stack (as built in v0.1)
 
 | Layer | Choice | Why |
 |---|---|---|
-| App framework | **Next.js 15 (App Router) + TypeScript** | One codebase for the admin panel, client studio, public invitations and API. Server Components keep dashboards fast. |
-| UI | **Tailwind CSS + Radix UI primitives + custom design system** | Accessible primitives with a fully bespoke luxury skin (no off-the-shelf look) |
-| Motion and 3D | **React Three Fiber (Three.js) + Framer Motion + GSAP** | Real 3D openings (envelope, doors, curtain, jewel box) with 2D and video fallbacks |
-| i18n | **next-intl**, full **RTL** support | Arabic-first market (Oman, GCC), English second |
-| Database | **PostgreSQL 16** + **Prisma 7** | Relational integrity for guests, RSVPs and passes; JSONB for theme configs |
-| Jobs | **pg-boss** (queue on Postgres) | Report generation, image processing and scheduled privacy expiry, with no extra infrastructure |
-| Cache and rate limits | **Redis** | Login and RSVP rate limiting, session cache, invitation page cache |
-| File storage | **S3-compatible** (Cloudflare R2 / AWS S3 / MinIO when self-hosted) | Photos, music and opening videos via presigned uploads, served through a CDN |
-| Images | **sharp** | Re-encode every upload (strips EXIF/GPS) and make responsive sizes (AVIF/WebP) |
-| PDF reports | **Playwright (headless Chromium)** rendering HTML templates | Correct Arabic shaping and ligatures (most PDF libraries break Arabic) |
-| Excel reports | **ExcelJS** | Styled .xlsx with formulas and RTL sheets |
-| QR | `qrcode` (generate) and `@zxing/browser` (scan) | Works offline-tolerant in the gate scanner PWA |
-| Auth | Custom session auth (Lucia-style) + **argon2id** + **TOTP 2FA** | Admin-issued credentials, no public sign-up |
-| Validation | **Zod** everywhere (forms, API, JSON configs) | One schema for client and server |
-| Hosting | Docker Compose: `app`, `worker`, `postgres`, `redis`, `minio`, `caddy` | One VPS to start (a GCC region suits Omani latency: AWS me-central-1 UAE or me-south-1 Bahrain), plus a CDN in front |
-| Observability | Sentry (errors), Pino logs, uptime checks | |
+| App framework | **Next.js 16 (App Router) + React 19 + TypeScript (strict)** | One codebase for admin, studio, invitations and API. Server Components and Server Actions keep logic on the server. |
+| UI | Hand-built design system (`src/app/globals.css`) | Bespoke luxury look, accessible native controls, logical CSS properties for RTL |
+| 3D | **Three.js** with four opening scenes | Envelope, doors, curtain and box, loaded lazily, with a 2D fallback |
+| Database | **PostgreSQL 16 + Drizzle ORM** (SQL migrations in `drizzle/`) | Typed SQL, no native engine binaries. **PGlite** (embedded Postgres) for local development and tests. |
+| Rate limits | Postgres table (fixed window) | Works across instances without Redis |
+| Files | Local volume behind `/media/<id>` (S3 later) | Images re-encoded with **sharp**, audio checked by magic bytes |
+| Reports | **ExcelJS** + **headless Chromium** (playwright-core) | Chromium shapes Arabic correctly in PDFs |
+| Auth | Custom sessions + **argon2id** + **TOTP** (otpauth) | Admin-issued credentials only |
+| Validation | **Zod 4** on every input and every stored JSON document | |
+| Hosting | Docker Compose: `caddy` (HTTPS) → `app` → `db` | One VPS to start |
+
+v0.1 decisions that differ from the first design: Drizzle replaced Prisma (Prisma 7's engines could not be installed in all environments), and Redis and pg-boss were left out. Reports render on request, and Postgres handles rate limits.
 
 ## 3. High-level diagram
 
@@ -60,10 +56,8 @@ flowchart LR
   PUB --> API
 
   API --> PG[(PostgreSQL)]
-  API --> RD[(Redis)]
-  API --> S3[(Object storage)]
-  W[Worker · pg-boss<br/>reports · images · expiry] --> PG & S3
-  API -. enqueue .-> W
+  API --> S3[(Uploads volume)]
+  API --> CH[Headless Chromium<br/>PDF reports]
 ```
 
 ## 4. Application modules (route groups)
@@ -139,7 +133,7 @@ app/
 - Every tenant-owned row carries `accountId`.
 - All data access goes through a **repository layer** that requires a `TenantContext` (`{ userId, role, accountId | null }`). Queries are automatically scoped, so there are no raw Prisma calls in route code (enforced by an ESLint rule).
 - Admin access to tenant data goes through an explicit `actingAs(accountId)` context that **writes an AuditLog entry**.
-- A Postgres **Row-Level Security** policy on `accountId` is the second line of defence (phase 2).
+- A Postgres **Row-Level Security** policy on `accountId` is planned as a second line of defence.
 
 ## 8. Performance budgets (guest page)
 

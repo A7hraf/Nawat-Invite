@@ -1,5 +1,23 @@
 # Deployment
 
+## Render (one click)
+
+1. In Render: **New → Blueprint**, connect GitHub and pick `A7hraf/Nawat-Invite`. `render.yaml` creates the web service (Docker, 5 GB disk for uploads, Frankfurt) and a PostgreSQL 16 database. It also generates `APP_SECRET`.
+2. Optionally set `SEED_ADMIN_PASSWORD`. Otherwise open the first deploy's logs and copy the one-time admin password.
+3. Open `https://<service>.onrender.com/login`, sign in as `admin`, set up 2-step sign-in and choose a new password.
+4. Custom domain: Settings → Custom Domains → `invites.nawat.om`, then add the CNAME record at your DNS provider. Set `APP_URL=https://invites.nawat.om` so links and QR codes use it.
+
+## Railway
+
+New Project → Deploy from GitHub repo, then add a PostgreSQL database. On the app service:
+
+- Set `DATABASE_URL=${{Postgres.DATABASE_URL}}` and `APP_SECRET` (`openssl rand -base64 48`).
+- Add a volume mounted at `/data`.
+- Generate a public domain.
+
+`railway.json` already selects the Dockerfile.
+
+
 ## One server with Docker (recommended start)
 
 Requirements: a Linux VPS with Docker, and a domain (e.g. `invites.nawat.om`) whose DNS A record points at the server. A GCC region (AWS UAE `me-central-1` or Bahrain `me-south-1`) keeps latency low for Omani guests.

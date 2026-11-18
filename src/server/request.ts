@@ -1,10 +1,16 @@
 import "server-only";
 import { headers } from "next/headers";
 
-/** Client IP as seen by the reverse proxy (Caddy sets X-Forwarded-For). */
+/**
+ * Client IP. The LAST X-Forwarded-For entry is the one added by our own proxy
+ * (Caddy, Render, Railway); earlier entries can be forged by the client.
+ */
+export const ipFromForwarded = (xff: string | null, real: string | null = null) =>
+  xff?.split(",").map((s) => s.trim()).filter(Boolean).pop() || real || null;
+
 export async function clientIp(): Promise<string | null> {
   const h = await headers();
-  return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || null;
+  return ipFromForwarded(h.get("x-forwarded-for"), h.get("x-real-ip"));
 }
 
 export async function userAgent(): Promise<string | null> {

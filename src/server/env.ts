@@ -17,7 +17,9 @@ let cached: Env | null = null;
 /** Validated environment. Fails fast with a readable message when misconfigured. */
 export function env(): Env {
   if (cached) return cached;
-  const parsed = EnvSchema.safeParse(process.env);
+  // Hosting platforms publish the public URL themselves (Render, Railway).
+  const platformUrl = process.env.RENDER_EXTERNAL_URL ?? (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : undefined);
+  const parsed = EnvSchema.safeParse({ ...process.env, APP_URL: process.env.APP_URL || platformUrl || undefined });
   if (!parsed.success) {
     const msg = parsed.error.issues.map((i) => `  • ${i.path.join(".")}: ${i.message}`).join("\n");
     throw new Error(`Invalid environment configuration:\n${msg}\nSee .env.example`);

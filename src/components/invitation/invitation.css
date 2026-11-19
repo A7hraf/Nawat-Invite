@@ -515,3 +515,12 @@
 .sb-card { overflow: hidden; } .sb-card > i { position: absolute; inset: 0; background-size: cover; background-position: center; }
 .sb-open.tone-dark .sb-to .k, .sb-open.tone-dark .sb-to .w { color: #fff4e2; text-shadow: 0 1px 8px rgba(0,0,0,.45); }
 .inv[dir="rtl"] .sb-card-sec:is(.s2, .s3, .s4) .names .w { clip-path: inset(-20% -5% -20% -5%); }
+.sb-video { position: absolute; inset: 0; background: #000; display: grid; place-items: center; }
+.sb-video video { width: min(100vw, 520px); height: 100%; object-fit: cover; }
+.sb-video-start { position: absolute; inset: 0; border: 0; background: linear-gradient(180deg, rgba(0,0,0,.35), transparent 30%, transparent 60%, rgba(0,0,0,.45)); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; cursor: pointer; font: inherit; }
+.sb-video-start .k { font-size: 11px; letter-spacing: .28em; text-transform: uppercase; opacity: .85; }
+.sb-video-start .w { font-family: var(--script-font); font-size: 34px; text-shadow: 0 2px 14px rgba(0,0,0,.5); }
+.inv[dir="rtl"] .sb-video-start .w { font-family: var(--ar-font); font-size: 28px; }
+.sb-video-start .go { width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center; margin-top: 18px; background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 70%, #fff), var(--accent)); color: var(--onAccent); box-shadow: 0 10px 30px rgba(0,0,0,.4); animation: inv-pulse 2.4s ease-in-out infinite; }
+.sb-video-start .h { font-size: 13px; opacity: .9; }
+.sb-video-skip { position: absolute; bottom: max(28px, env(safe-area-inset-bottom)); right: 20px; z-index: 2; }

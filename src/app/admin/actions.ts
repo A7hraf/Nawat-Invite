@@ -192,7 +192,7 @@ export async function uploadThemeArtAction(_: ActionState, fd: FormData): Promis
     const slug = str(fd, "slug");
     const slot = z.enum(ART_SLOTS).parse(str(fd, "slot"));
     if (!themeBySlug(slug)) throw new UserError("Unknown theme");
-    const asset = await saveUpload(fd.get("file") as File, "IMAGE", null, undefined, 2400);
+    const asset = slot === "video" ? await saveUpload(fd.get("file") as File, "VIDEO", null) : await saveUpload(fd.get("file") as File, "IMAGE", null, undefined, 2400);
     const db = await getDb();
     const row = await db.query.themes.findFirst({ where: eq(schema.themes.slug, slug) });
     const old = row?.art?.[slot];

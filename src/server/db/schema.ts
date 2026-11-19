@@ -13,7 +13,7 @@ export const packageEnum = pgEnum("package_type", ["ATELIER", "CONCIERGE"]);
 export const accountStatusEnum = pgEnum("account_status", ["ACTIVE", "SUSPENDED"]);
 export const eventTypeEnum = pgEnum("event_type", ["ENGAGEMENT", "WEDDING", "RECEPTION", "HENNA", "OTHER"]);
 export const eventStatusEnum = pgEnum("event_status", ["DRAFT", "PUBLISHED", "CLOSED", "ARCHIVED"]);
-export const mediaKindEnum = pgEnum("media_kind", ["IMAGE", "AUDIO"]);
+export const mediaKindEnum = pgEnum("media_kind", ["IMAGE", "AUDIO", "VIDEO"]);
 export const guestSideEnum = pgEnum("guest_side", ["BRIDE", "GROOM", "BOTH", "OTHER"]);
 export const rsvpStatusEnum = pgEnum("rsvp_status", ["ATTENDING", "DECLINED"]);
 

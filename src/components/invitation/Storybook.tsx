@@ -119,3 +119,31 @@ function Dove({ i }: { i: number }) {
     </svg>
   );
 }
+
+/** Opening film (admin-uploaded per theme): plays full screen on tap, then the card appears. */
+export function VideoOpening(p: { src: string; poster: string; t: Strings; whoText: string; onBegin: () => void; onDone: () => void }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(false);
+  const done = useRef(false);
+  const finish = () => { if (done.current) return; done.current = true; p.onBegin(); p.onDone(); };
+  const play = () => {
+    const v = ref.current; if (!v) return finish();
+    setPlaying(true);
+    v.muted = false;
+    v.play().catch(() => { v.muted = true; v.play().catch(finish); });
+  };
+  return (
+    <div className={`sb-video${playing ? " playing" : ""}`}>
+      <video ref={ref} src={p.src} poster={p.poster} playsInline preload="auto" onEnded={finish} onError={() => playing && finish()} />
+      {!playing && (
+        <button type="button" className="sb-video-start" onClick={play}>
+          <span className="k">{p.t.forKicker}</span>
+          <span className="w">{p.whoText}</span>
+          <span className="go"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor" /></svg></span>
+          <span className="h">{p.t.tapSeal}</span>
+        </button>
+      )}
+      {playing && <button type="button" className="inv-skip sb-video-skip" onClick={finish}>{p.t.skip}</button>}
+    </div>
+  );
+}

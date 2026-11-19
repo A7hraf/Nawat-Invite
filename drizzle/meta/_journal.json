@@ -15,6 +15,13 @@
       "when": 1795034308290,
       "tag": "0001_theme_art",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795087460983,
+      "tag": "0002_media_video",
+      "breakpoints": true
     }
   ]
 }

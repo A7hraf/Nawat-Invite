@@ -8,9 +8,11 @@ import { env } from "./env";
 
 const MAX_IMAGE = 15 * 1024 * 1024;
 const MAX_AUDIO = 10 * 1024 * 1024;
+const MAX_VIDEO = 40 * 1024 * 1024;
+type Kind = "IMAGE" | "AUDIO" | "VIDEO";
 
 /** Identify a file by its first bytes, never by its name or the browser's claim. */
-function sniff(buf: Buffer): { kind: "IMAGE" | "AUDIO"; mime: string; ext: string } | null {
+function sniff(buf: Buffer): { kind: Kind; mime: string; ext: string } | null {
   const h = buf.subarray(0, 12);
   if (h[0] === 0xff && h[1] === 0xd8 && h[2] === 0xff) return { kind: "IMAGE", mime: "image/jpeg", ext: "jpg" };
   if (h.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))) return { kind: "IMAGE", mime: "image/png", ext: "png" };
@@ -18,8 +20,11 @@ function sniff(buf: Buffer): { kind: "IMAGE" | "AUDIO"; mime: string; ext: strin
   if (h.subarray(4, 8).toString() === "ftyp") {
     const brand = h.subarray(8, 12).toString();
     if (/heic|heix|mif1/.test(brand)) return { kind: "IMAGE", mime: "image/heic", ext: "heic" };
+    if (/^M4A|^M4B/.test(brand)) return { kind: "AUDIO", mime: "audio/mp4", ext: "m4a" };
+    if (/^(isom|iso[2-6]|mp41|mp42|avc1|M4V |dash)/.test(brand)) return { kind: "VIDEO", mime: "video/mp4", ext: "mp4" };
     return { kind: "AUDIO", mime: "audio/mp4", ext: "m4a" };
   }
+  if (h[0] === 0x1a && h[1] === 0x45 && h[2] === 0xdf && h[3] === 0xa3) return { kind: "VIDEO", mime: "video/webm", ext: "webm" };
   if (h.subarray(0, 3).toString() === "ID3" || (h[0] === 0xff && ((h[1] ?? 0) & 0xe0) === 0xe0)) return { kind: "AUDIO", mime: "audio/mpeg", ext: "mp3" };
   return null;
 }
@@ -38,16 +43,19 @@ export async function storageUsed(accountId: string) {
  *  - images are decoded and re-encoded to WebP (strips EXIF/GPS, defeats polyglot files)
  *  - audio must be real MP3/M4A
  */
-export async function saveUpload(file: File, expect: "IMAGE" | "AUDIO", accountId: string | null, quotaMb?: number, maxDimension = 2000) {
+export async function saveUpload(file: File, expect: Kind, accountId: string | null, quotaMb?: number, maxDimension = 2000) {
   if (!(file instanceof File) || file.size === 0) throw new UserError("Choose a file to upload");
-  const limit = expect === "IMAGE" ? MAX_IMAGE : MAX_AUDIO;
+  const limit = expect === "IMAGE" ? MAX_IMAGE : expect === "VIDEO" ? MAX_VIDEO : MAX_AUDIO;
   if (file.size > limit) throw new UserError(`The file is too large (max ${limit / 1024 / 1024} MB)`);
   if (accountId && quotaMb !== undefined && (await storageUsed(accountId)) + file.size > quotaMb * 1024 * 1024) {
     throw new UserError("Your storage is full. Remove a file or ask Nawat for more space.");
   }
   let buf: Buffer = Buffer.from(await file.arrayBuffer());
   const type = sniff(buf);
-  if (!type || type.kind !== expect) throw new UserError(expect === "IMAGE" ? "Please upload a JPG, PNG, WebP or HEIC photo" : "Please upload an MP3 or M4A audio file");
+  // An M4A/MP4 container is accepted as either audio or video; everything else must match exactly.
+  const ok = type && (type.kind === expect || (type.mime.endsWith("mp4") && expect !== "IMAGE"));
+  if (!type || !ok) throw new UserError(expect === "IMAGE" ? "Please upload a JPG, PNG, WebP or HEIC photo" : expect === "VIDEO" ? "Please upload an MP4 or WebM video" : "Please upload an MP3 or M4A audio file");
+  if (expect === "VIDEO" && type.kind === "AUDIO") { type.mime = "video/mp4"; type.ext = "mp4"; }
 
   let mime = type.mime, ext = type.ext, width: number | null = null, height: number | null = null;
   if (expect === "IMAGE") {

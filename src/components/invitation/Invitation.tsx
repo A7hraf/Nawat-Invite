@@ -7,7 +7,7 @@ import { digits, STRINGS, type Locale } from "./i18n";
 import { InvitationMusic } from "./music";
 import { Opening } from "./Opening";
 import { PhotoOpening } from "./PhotoOpening";
-import { StoryCard, StoryOpening } from "./Storybook";
+import { StoryCard, StoryOpening, VideoOpening } from "./Storybook";
 import { Closing, CurtainLetter, DressCode, Faq, HallArt, LightRoom, SealDate, StickyReply, SwipeNotices } from "./sections";
 import { Ornament } from "./Ornament";
 import { Rsvp } from "./Rsvp";
@@ -109,7 +109,9 @@ export function Invitation({ data: d }: { data: InvitationData }) {
       </div>
 
       <div className={`inv-stage${stage === "open" ? " gone" : ""}`} role="dialog" aria-modal={stage !== "open"} aria-label="Invitation opening" style={stage === "open" ? { visibility: "hidden" } : undefined}>
-        {story
+        {story && d.art.video
+          ? <VideoOpening src={d.art.video} poster={relief!} t={t} whoText={d.guest?.name ?? t.ourGuests} onBegin={onBegin} onDone={onStoryDone} />
+          : story
           ? <StoryOpening envelope="/themes/_shared/envelope.webp" envelopeTint={d.theme.envelope} liner={`color-mix(in srgb, ${d.theme.envelope} 45%, ${d.theme.palette.night})`}
               relief={relief!} faux={!d.art.relief} tone={d.theme.tone} accent={d.accent} script={d.theme.fonts.script} monogram={mono} t={t} whoText={d.guest?.name ?? t.ourGuests}
               replayToken={replay} reducedMotion={reducedMotion} onBegin={onBegin} onDone={onStoryDone} />

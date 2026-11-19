@@ -4,10 +4,11 @@ export type OpeningKind = "envelope" | "doors" | "curtain" | "box";
 /** How the guest opens a photo-art invitation (used when the theme has cover artwork). */
 export type Interaction = "seal" | "ribbon" | "gatefold" | "curtain";
 /** Artwork slots an admin can fill per theme (Control Room → Themes). */
-export const ART_SLOTS = ["cover", "reveal", "relief", "texture", "venue", "closing", "dressHer", "dressHim"] as const;
+export const ART_SLOTS = ["video", "cover", "reveal", "relief", "texture", "venue", "closing", "dressHer", "dressHim"] as const;
 export type ArtSlot = (typeof ART_SLOTS)[number];
 export type ThemeArt = Partial<Record<ArtSlot, string>>; // slot → media asset id
 export const ART_SLOT_INFO: Record<ArtSlot, { label: string; hint: string }> = {
+  video: { label: "Opening film (optional)", hint: "MP4 or WebM up to 40 MB, portrait 9:16, 6–20 s: an envelope or doors opening filmed or animated. Plays when the guest taps, then the card appears." },
   cover: { label: "Custom opening (optional)", hint: "Portrait 9:16 photo that replaces the embossed envelope, e.g. a velvet box. The guest opens it with the theme's gesture." },
   reveal: { label: "Painted scene", hint: "Portrait 9:16, the scene on the invitation card (painting or photo). Keep the upper half calm for the names." },
   relief: { label: "Embossed version", hint: "Portrait 9:16, the same scene as ivory embossed paper. It blooms into the painted scene. Bundled themes have one generated." },

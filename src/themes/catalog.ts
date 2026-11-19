@@ -84,7 +84,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Cormorant Garamond", arabic: "Amiri", script: "Pinyon Script" }, interaction: "seal",
     ornament: "diamond",
     scene: { paper: "#F3EADB", liner: "#6B4F3A", linerLine: "#E8C99A", pattern: "lattice", seal: "#5A3E2B", metal: "#E8C99A" },
-    music: "celebrated-minuet", particles: "bubbles", hero: "classic", tone: "light", envelope: "#efe2cf", art: ["reveal", "relief", "venue", "closing"],
+    music: "celebrated-minuet", particles: "bubbles", hero: "classic", tone: "light", envelope: "#efe2cf", art: ["video", "reveal", "relief", "venue", "closing"],
   },
   {
     slug: "vellum-garden", tier: "IVORY",
@@ -96,7 +96,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Fraunces", arabic: "Lateef", script: "Italianno" }, interaction: "seal",
     ornament: "leaf",
     scene: { paper: "#EEF0E6", liner: "#6E8C73", linerLine: "#DDE7D2", pattern: "leaves", seal: "#4F6B55", metal: "#D9E3CF" },
-    music: "magic-garden", particles: "petals", hero: "editorial", tone: "light", envelope: "#f6efe6", art: ["reveal", "relief", "venue", "closing"],
+    music: "magic-garden", particles: "petals", hero: "editorial", tone: "light", envelope: "#f6efe6", art: ["video", "reveal", "relief", "venue", "closing"],
   },
   {
     slug: "muscat-sea", tier: "IVORY",
@@ -108,7 +108,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Italiana", arabic: "El Messiri", script: "Great Vibes" }, interaction: "seal",
     ornament: "wave",
     scene: { paper: "#F4F7FA", liner: "#2F6690", linerLine: "#D6E2EC", pattern: "waves", seal: "#1F4E79", metal: "#D6E2EC" },
-    music: "neptunian-princess", particles: "none", hero: "frame", tone: "light", envelope: "#e3eef0", art: ["reveal", "relief", "venue", "closing"],
+    music: "neptunian-princess", particles: "none", hero: "frame", tone: "light", envelope: "#e3eef0", art: ["video", "reveal", "relief", "venue", "closing"],
   },
   {
     slug: "bab-al-noor", tier: "GILDED",
@@ -132,7 +132,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Bodoni Moda", arabic: "Amiri", script: "Great Vibes" }, interaction: "ribbon",
     ornament: "pearl",
     scene: { surface: "#F2E7E4", lining: "#E6C9CB", metal: "#D8D8DE", light: "#FFF1EE" },
-    music: "canon-in-d", particles: "gold", hero: "classic", tone: "light", envelope: "#f4f2f2", art: ["reveal", "relief", "venue", "closing"],
+    music: "canon-in-d", particles: "gold", hero: "classic", tone: "light", envelope: "#f4f2f2", art: ["video", "reveal", "relief", "venue", "closing"],
   },
   {
     slug: "layali-celestial", tier: "GILDED",
@@ -242,7 +242,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Della Respira", arabic: "Scheherazade New", script: "Monsieur La Doulaise" }, interaction: "gatefold",
     ornament: "star",
     scene: { surface: "#2C7A7B", detail: "#F1E6C8", frame: "#E8DCC2", light: "#FFF0C8", metal: "#D7B46A" },
-    music: "waltz-for-naseem", particles: "none", hero: "arch", tone: "light", envelope: "#cfe6e2", art: ["reveal", "relief", "venue", "closing"],
+    music: "waltz-for-naseem", particles: "none", hero: "arch", tone: "light", envelope: "#cfe6e2", art: ["video", "reveal", "relief", "venue", "closing"],
   },
   {
     slug: "riad-jasmine", tier: "GILDED",
@@ -254,7 +254,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "DM Serif Display", arabic: "Alkalami", script: "Rouge Script" }, interaction: "gatefold",
     ornament: "leaf",
     scene: { surface: "#3E5E45", detail: "#E6D6B0", frame: "#D6C8A6", light: "#FFF1CC", metal: "#C8A96A" },
-    music: "romantic-inspiration", particles: "petals", hero: "frame", tone: "light", envelope: "#dde8d8", art: ["reveal", "relief", "venue", "closing"],
+    music: "romantic-inspiration", particles: "petals", hero: "frame", tone: "light", envelope: "#dde8d8", art: ["video", "reveal", "relief", "venue", "closing"],
   },
   {
     slug: "fanous-lantern", tier: "GILDED",

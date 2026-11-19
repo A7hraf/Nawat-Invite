@@ -28,6 +28,7 @@ P, S = theme["palette"], dict(theme["scene"])
 # film-only art direction for themes whose web scene is not an envelope
 S.update({
     "noir-monogram": {"paper": "#1E1D20", "seal": "#2A2A2E", "liner": "#0E0E10"},
+    "blush-letter": {"paper": "#E7C3BD", "seal": "#B7786A", "liner": "#A9555F", "linerLine": "#E4C08A", "metal": "#E2B48F", "pattern": "leaves"},
     "rouge-noir": {"paper": "#17100F", "seal": "#8F1D26", "liner": "#5A1418"},
     "emerald-deco": {"paper": "#F3EEDF", "pattern": "deco"},
     "layali-celestial": {"pattern": "stars"},

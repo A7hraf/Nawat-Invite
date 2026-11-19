@@ -12,3 +12,4 @@ coverage/
 next-env.d.ts
 .DS_Store
 AGENTS.md
+__pycache__/

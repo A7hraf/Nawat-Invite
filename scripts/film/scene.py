@@ -11,7 +11,8 @@ import json, math, os, sys
 import bpy, bmesh
 from mathutils import Vector
 
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+ROOT = os.path.dirname(os.path.abspath(__file__))
+while ROOT != "/" and not os.path.exists(os.path.join(ROOT, "package.json")): ROOT = os.path.dirname(ROOT)
 args = sys.argv[1:]
 SLUG, OUT = args[0], os.path.abspath(args[1])
 def opt(name, default):

@@ -1,4 +1,5 @@
 "use client";
+import { LivingScene, depthUrlFor } from "./LivingScene";
 import { useEffect, useRef, useState } from "react";
 import type { Strings } from "./i18n";
 import { WaxSeal } from "./WaxSeal";
@@ -71,10 +72,12 @@ export function StoryCard(p: {
     const ts = [setTimeout(() => setStep(1), 350), setTimeout(() => setStep(2), 1300), setTimeout(() => setStep(3), 2700), setTimeout(() => setStep(4), 4300)];
     return () => ts.forEach(clearTimeout);
   }, []);
+  const depth = depthUrlFor(p.painted);
   return (
-    <section className={`sb-card-sec tone-${p.tone} s${step}`}>
+    <section className={`sb-card-sec tone-${p.tone} s${step}${depth ? " has-living" : ""}`}>
       <div className={`layer relief${p.relief === p.painted ? " faux" : ""}`} style={{ backgroundImage: `url(${p.relief})` }} aria-hidden="true" />
       <div className="layer painted" style={{ backgroundImage: `url(${p.painted})` }} aria-hidden="true" />
+      {depth && <LivingScene painted={p.painted} depth={depth} active={step >= 4} />}
       {p.fx}
       <div className="doves" aria-hidden="true">{[0, 1, 2].map((i) => <Dove key={i} i={i} />)}</div>
       <div className="txt">

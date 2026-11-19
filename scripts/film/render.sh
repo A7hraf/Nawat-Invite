@@ -5,9 +5,9 @@
 # frames of the seal break and flap fold, where interpolation would smear.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
-slug=$1; part=$2; out=.data/film/$slug
+slug=$1; part=$2; out=${FILM_OUT_ROOT:-.data/film}/$slug
 scene="${FILM_SCENE:-scripts/film/scene.py}"
-render() { python3 "$scene" "$slug" "$out" --samples 8 --res 540 --step 2 --from "$1" --to "$2"; }
+render() { python3 "$scene" "$slug" "$out" --samples ${FILM_SAMPLES:-7} --res 540 --step 2 --from "$1" --to "$2"; }
 case $part in
   1) render 1 59 ;;
   2) render 61 119 ;;

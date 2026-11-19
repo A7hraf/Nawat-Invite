@@ -87,3 +87,13 @@ Rendered for Nawat in Blender (Cycles) from `scripts/film/scene.py`: a modelled 
 procedural wax seal with an eight-point khatam die, liner pattern, window-light gobo and
 the theme's own embossed card. No third-party footage. Blender is GPL; its rendered output
 belongs to Nawat.
+
+## Living scenes (`depth.webp`)
+
+Depth maps estimated from each theme's own painting with Depth Anything V2 Small
+(Apache-2.0, ONNX export by fabio-sim). Used only as a grayscale parallax map.
+
+## Film lighting
+
+Studio/environment lighting maps in `scripts/film/hdri/` come from the pmndrs assets
+package (CC0, originally Poly Haven).

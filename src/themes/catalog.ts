@@ -4,12 +4,13 @@ export type OpeningKind = "envelope" | "doors" | "curtain" | "box";
 /** How the guest opens a photo-art invitation (used when the theme has cover artwork). */
 export type Interaction = "seal" | "ribbon" | "gatefold" | "curtain";
 /** Artwork slots an admin can fill per theme (Control Room → Themes). */
-export const ART_SLOTS = ["cover", "reveal", "texture", "venue", "closing", "dressHer", "dressHim"] as const;
+export const ART_SLOTS = ["cover", "reveal", "relief", "texture", "venue", "closing", "dressHer", "dressHim"] as const;
 export type ArtSlot = (typeof ART_SLOTS)[number];
 export type ThemeArt = Partial<Record<ArtSlot, string>>; // slot → media asset id
 export const ART_SLOT_INFO: Record<ArtSlot, { label: string; hint: string }> = {
-  cover: { label: "Opening cover", hint: "Portrait 9:16, e.g. a sealed envelope or velvet box photographed from above. The guest opens it." },
-  reveal: { label: "Revealed scene", hint: "Portrait 9:16, the scene behind the cover (hall, garden, palace). Also the hero background." },
+  cover: { label: "Custom opening (optional)", hint: "Portrait 9:16 photo that replaces the embossed envelope, e.g. a velvet box. The guest opens it with the theme's gesture." },
+  reveal: { label: "Painted scene", hint: "Portrait 9:16, the scene on the invitation card (painting or photo). Keep the upper half calm for the names." },
+  relief: { label: "Embossed version", hint: "Portrait 9:16, the same scene as ivory embossed paper. It blooms into the painted scene. Bundled themes have one generated." },
   texture: { label: "Texture", hint: "Seamless fabric or paper (velvet, linen, marble) for the curtain and sections." },
   venue: { label: "Venue mood", hint: "Landscape 4:3 of a hall or table setting, lit by the guest’s finger." },
   closing: { label: "Closing image", hint: "Portrait 4:5 shown at the end, unless the couple uploads their own photo." },
@@ -56,6 +57,10 @@ export type ThemeDef = {
   hero: HeroLayout;
   /** Bundled artwork slots shipped in public/themes/<slug>/ (admin uploads override them). */
   art: ArtSlot[];
+  /** Text colour on the card: dark ink on light scenes, cream on dark scenes. */
+  tone: "light" | "dark";
+  /** Colour the embossed envelope is dyed with (multiplied over ivory paper). */
+  envelope: string;
 };
 export type Particles = "gold" | "petals" | "stars" | "bubbles" | "none";
 export type HeroLayout = "classic" | "editorial" | "arch" | "frame";
@@ -78,7 +83,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Cormorant Garamond", arabic: "Amiri", script: "Pinyon Script" }, interaction: "seal",
     ornament: "diamond",
     scene: { paper: "#F3EADB", liner: "#6B4F3A", linerLine: "#E8C99A", pattern: "lattice", seal: "#5A3E2B", metal: "#E8C99A" },
-    music: "celebrated-minuet", particles: "bubbles", hero: "classic", art: ["cover", "reveal", "venue", "closing"],
+    music: "celebrated-minuet", particles: "bubbles", hero: "classic", tone: "light", envelope: "#efe2cf", art: ["reveal", "relief", "venue", "closing"],
   },
   {
     slug: "vellum-garden", tier: "IVORY",
@@ -90,7 +95,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Fraunces", arabic: "Lateef", script: "Italianno" }, interaction: "seal",
     ornament: "leaf",
     scene: { paper: "#EEF0E6", liner: "#6E8C73", linerLine: "#DDE7D2", pattern: "leaves", seal: "#4F6B55", metal: "#D9E3CF" },
-    music: "magic-garden", particles: "petals", hero: "editorial", art: ["reveal", "venue", "closing"],
+    music: "magic-garden", particles: "petals", hero: "editorial", tone: "light", envelope: "#f6efe6", art: ["reveal", "relief", "venue", "closing"],
   },
   {
     slug: "muscat-sea", tier: "IVORY",
@@ -102,7 +107,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Italiana", arabic: "El Messiri", script: "Great Vibes" }, interaction: "seal",
     ornament: "wave",
     scene: { paper: "#F4F7FA", liner: "#2F6690", linerLine: "#D6E2EC", pattern: "waves", seal: "#1F4E79", metal: "#D6E2EC" },
-    music: "neptunian-princess", particles: "none", hero: "frame", art: ["reveal", "venue", "closing"],
+    music: "neptunian-princess", particles: "none", hero: "frame", tone: "light", envelope: "#e3eef0", art: ["reveal", "relief", "venue", "closing"],
   },
   {
     slug: "bab-al-noor", tier: "GILDED",
@@ -114,7 +119,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Cinzel", arabic: "Aref Ruqaa", script: "Pinyon Script" }, interaction: "gatefold",
     ornament: "arch",
     scene: { surface: "#EADBC0", detail: "#C9A45C", frame: "#D9C6A2", light: "#FFE3A8", metal: "#D4AF63" },
-    music: "nomadic-sunset", particles: "gold", hero: "frame", art: ["cover", "reveal", "venue", "closing"],
+    music: "nomadic-sunset", particles: "gold", hero: "frame", tone: "light", envelope: "#f7eadf", art: ["reveal", "relief", "venue", "closing"],
   },
   {
     slug: "dana-pearl", tier: "GILDED",
@@ -126,7 +131,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Bodoni Moda", arabic: "Amiri", script: "Great Vibes" }, interaction: "ribbon",
     ornament: "pearl",
     scene: { surface: "#F2E7E4", lining: "#E6C9CB", metal: "#D8D8DE", light: "#FFF1EE" },
-    music: "canon-in-d", particles: "gold", hero: "classic", art: ["cover", "reveal", "venue", "closing"],
+    music: "canon-in-d", particles: "gold", hero: "classic", tone: "light", envelope: "#f4f2f2", art: ["reveal", "relief", "venue", "closing"],
   },
   {
     slug: "layali-celestial", tier: "GILDED",
@@ -138,7 +143,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Marcellus", arabic: "Reem Kufi", script: "Pinyon Script" }, interaction: "curtain",
     ornament: "star",
     scene: { fabric: "#1E2F5E", fabric2: "#0B1530", metal: "#D6B26A", light: "#FFE7B5", stars: true },
-    music: "landras-dream", particles: "stars", hero: "editorial", art: ["reveal", "texture", "venue", "closing"],
+    music: "landras-dream", particles: "stars", hero: "editorial", tone: "dark", envelope: "#7f8fbf", art: ["reveal", "relief", "texture", "venue", "closing"],
   },
   {
     slug: "desert-rose", tier: "GILDED",
@@ -150,7 +155,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Libre Caslon Display", arabic: "Mirza", script: "Italianno" }, interaction: "gatefold",
     ornament: "arch",
     scene: { surface: "#B5654F", detail: "#F1C8A8", frame: "#E8D3BE", light: "#FFD2AE", metal: "#F1C8A8" },
-    music: "the-desert", particles: "gold", hero: "editorial", art: ["reveal", "venue", "closing"],
+    music: "the-desert", particles: "gold", hero: "editorial", tone: "light", envelope: "#efcfc3", art: ["reveal", "relief", "venue", "closing"],
   },
   {
     slug: "majlis-velvet", tier: "ROYAL_SEAL",
@@ -162,7 +167,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Gloock", arabic: "Aref Ruqaa", script: "Pinyon Script" }, interaction: "seal",
     ornament: "diamond",
     scene: { paper: "#F7EFE1", liner: "#7A2235", linerLine: "#D6B26A", pattern: "lattice", seal: "#6E1729", metal: "#C9A45C" },
-    music: "royal-coupling", particles: "gold", hero: "classic", art: ["cover", "reveal", "texture", "venue", "closing"],
+    music: "royal-coupling", particles: "gold", hero: "classic", tone: "dark", envelope: "#b8505d", art: ["reveal", "relief", "texture", "venue", "closing"],
   },
   {
     slug: "emerald-deco", tier: "ROYAL_SEAL",
@@ -174,7 +179,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Poiret One", arabic: "Reem Kufi", script: "Italianno" }, interaction: "seal",
     ornament: "deco",
     scene: { surface: "#0F4D3C", lining: "#E8E0C8", metal: "#D4B062", light: "#FFF0C8" },
-    music: "brandenburg-3", particles: "gold", hero: "frame", art: ["cover", "reveal", "texture", "venue", "closing"],
+    music: "brandenburg-3", particles: "gold", hero: "frame", tone: "dark", envelope: "#6fae95", art: ["reveal", "relief", "texture", "venue", "closing"],
   },
   {
     slug: "noir-monogram", tier: "ROYAL_SEAL",
@@ -186,7 +191,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Playfair Display", arabic: "Noto Kufi Arabic", script: "Luxurious Script" }, interaction: "curtain",
     ornament: "deco",
     scene: { fabric: "#1A1A1D", fabric2: "#060607", metal: "#C9C9CE", light: "#F2F2F5" },
-    music: "air-on-g", particles: "none", hero: "editorial", art: ["reveal", "texture", "venue", "closing"],
+    music: "air-on-g", particles: "none", hero: "editorial", tone: "dark", envelope: "#6c6866", art: ["reveal", "relief", "texture", "venue", "closing"],
   },
 
   // ── Added in the 20-theme collection ──
@@ -200,7 +205,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Gilda Display", arabic: "Noto Naskh Arabic", script: "Parisienne" }, interaction: "seal",
     ornament: "pearl",
     scene: { paper: "#F7E9E4", liner: "#D9B8B0", linerLine: "#FFFFFF", pattern: "leaves", seal: "#A9764E", metal: "#C99A6E" },
-    music: "lovely-piano", particles: "petals", hero: "arch", art: ["reveal", "venue", "closing"],
+    music: "lovely-piano", particles: "petals", hero: "arch", tone: "light", envelope: "#f6dfdc", art: ["reveal", "relief", "venue", "closing"],
   },
   {
     slug: "garden-veil", tier: "IVORY",
@@ -212,7 +217,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Bellefair", arabic: "Harmattan", script: "Allura" }, interaction: "curtain",
     ornament: "leaf",
     scene: { fabric: "#EDE4D2", fabric2: "#C9BEA8", metal: "#CDB88A", light: "#FFF8E8" },
-    music: "hold-me-love-me", particles: "petals", hero: "classic", art: ["reveal", "texture", "venue", "closing"],
+    music: "hold-me-love-me", particles: "petals", hero: "classic", tone: "light", envelope: "#edf1e4", art: ["reveal", "relief", "texture", "venue", "closing"],
   },
   {
     slug: "henna-night", tier: "IVORY",
@@ -224,7 +229,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Prata", arabic: "Rakkas", script: "Alex Brush" }, interaction: "seal",
     ornament: "arch",
     scene: { paper: "#F7E2CF", liner: "#A0412E", linerLine: "#E0A951", pattern: "lattice", seal: "#7E2418", metal: "#E0A951" },
-    music: "the-desert", particles: "gold", hero: "arch", art: ["reveal", "venue", "closing"],
+    music: "the-desert", particles: "gold", hero: "arch", tone: "light", envelope: "#e8b9a0", art: ["reveal", "relief", "venue", "closing"],
   },
   {
     slug: "andalus-zellige", tier: "GILDED",
@@ -236,7 +241,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Della Respira", arabic: "Scheherazade New", script: "Monsieur La Doulaise" }, interaction: "gatefold",
     ornament: "star",
     scene: { surface: "#2C7A7B", detail: "#F1E6C8", frame: "#E8DCC2", light: "#FFF0C8", metal: "#D7B46A" },
-    music: "waltz-for-naseem", particles: "none", hero: "arch", art: ["cover", "reveal", "venue", "closing"],
+    music: "waltz-for-naseem", particles: "none", hero: "arch", tone: "light", envelope: "#cfe6e2", art: ["reveal", "relief", "venue", "closing"],
   },
   {
     slug: "riad-jasmine", tier: "GILDED",
@@ -248,7 +253,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "DM Serif Display", arabic: "Alkalami", script: "Rouge Script" }, interaction: "gatefold",
     ornament: "leaf",
     scene: { surface: "#3E5E45", detail: "#E6D6B0", frame: "#D6C8A6", light: "#FFF1CC", metal: "#C8A96A" },
-    music: "romantic-inspiration", particles: "petals", hero: "frame", art: ["reveal", "venue", "closing"],
+    music: "romantic-inspiration", particles: "petals", hero: "frame", tone: "light", envelope: "#dde8d8", art: ["reveal", "relief", "venue", "closing"],
   },
   {
     slug: "fanous-lantern", tier: "GILDED",
@@ -260,7 +265,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Forum", arabic: "Katibeh", script: "Mea Culpa" }, interaction: "seal",
     ornament: "star",
     scene: { paper: "#F2E3C4", liner: "#3A2814", linerLine: "#E2B65C", pattern: "stars", seal: "#7A5426", metal: "#E2B65C" },
-    music: "nomadic-sunset", particles: "gold", hero: "classic", art: ["reveal", "venue", "closing"],
+    music: "nomadic-sunset", particles: "gold", hero: "classic", tone: "dark", envelope: "#d9b98a", art: ["reveal", "relief", "venue", "closing"],
   },
   {
     slug: "marble-peony", tier: "GILDED",
@@ -272,7 +277,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Cormorant Garamond", arabic: "Noto Kufi Arabic", script: "WindSong" }, interaction: "ribbon",
     ornament: "pearl",
     scene: { surface: "#ECEAE7", lining: "#D8CFC2", metal: "#C6A97A", light: "#FFFFFF" },
-    music: "alls-fair-in-love", particles: "petals", hero: "editorial", art: ["cover", "reveal", "venue", "closing"],
+    music: "alls-fair-in-love", particles: "petals", hero: "editorial", tone: "light", envelope: "#f0efed", art: ["reveal", "relief", "venue", "closing"],
   },
   {
     slug: "isfahan-mirror", tier: "ROYAL_SEAL",
@@ -284,7 +289,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Cinzel Decorative", arabic: "Kufam", script: "Corinthia" }, interaction: "gatefold",
     ornament: "star",
     scene: { surface: "#1E3A7A", detail: "#E0B457", frame: "#C9D3EA", light: "#FFE8B0", metal: "#E0B457" },
-    music: "goldberg-aria", particles: "stars", hero: "arch", art: ["reveal", "venue", "closing"],
+    music: "goldberg-aria", particles: "stars", hero: "arch", tone: "dark", envelope: "#8ea4d6", art: ["reveal", "relief", "venue", "closing"],
   },
   {
     slug: "rouge-noir", tier: "ROYAL_SEAL",
@@ -296,7 +301,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Tenor Sans", arabic: "Gulzar", script: "Imperial Script" }, interaction: "ribbon",
     ornament: "diamond",
     scene: { surface: "#B3121D", lining: "#1A1A1A", metal: "#D9A866", light: "#FFE6C0" },
-    music: "night-in-venice", particles: "gold", hero: "editorial", art: ["cover", "reveal", "venue", "closing"],
+    music: "night-in-venice", particles: "gold", hero: "editorial", tone: "dark", envelope: "#c4505a", art: ["reveal", "relief", "venue", "closing"],
   },
   {
     slug: "blanc-royale", tier: "ROYAL_SEAL",
@@ -308,7 +313,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Italiana", arabic: "Amiri", script: "Monsieur La Doulaise" }, interaction: "curtain",
     ornament: "pearl",
     scene: { fabric: "#EFE6D4", fabric2: "#CDBFA6", metal: "#CBB07A", light: "#FFFFFF" },
-    music: "celebration", particles: "petals", hero: "frame", art: ["reveal", "texture", "venue", "closing"],
+    music: "celebration", particles: "petals", hero: "frame", tone: "light", envelope: "#fbf8f2", art: ["reveal", "relief", "texture", "venue", "closing"],
   },
 ];
 

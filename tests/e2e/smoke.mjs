@@ -22,6 +22,7 @@ const errors = [];
 const watch = (p, label) => { p.on("pageerror", (e) => errors.push(`${label}: ${e.message}`)); p.on("console", (m) => { if (m.type() === "error" && !/fonts\.g|Failed to load resource/.test(m.text())) errors.push(`${label}: ${m.text()}`); }); };
 /** Opens an invitation whichever opening it has: hold the wax seal, tap a photo opening, or tap the 3D scene. */
 const openInvitation = async (pg) => {
+  if (await pg.locator(".sb-seal").count()) { await pg.locator(".sb-seal").click(); await pg.waitForTimeout(3600); return; }
   if (await pg.locator(".k-seal").count()) {
     const bb = await pg.locator(".ph-seal").boundingBox();
     await pg.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2); await pg.mouse.down(); await pg.waitForTimeout(1400); await pg.mouse.up();
@@ -142,7 +143,7 @@ await shot(g, "20-guest-opening");
 await openInvitation(g);
 await g.waitForTimeout(2200);
 await shot(g, "21-guest-opening-mid");
-await g.waitForSelector(".inv-hero", { timeout: 30000 });
+await g.waitForSelector(".inv-hero, .sb-card-sec", { timeout: 30000 });
 await g.waitForTimeout(1500);
 await shot(g, "22-guest-invitation");
 await g.locator("#rsvp").scrollIntoViewIfNeeded();
@@ -230,10 +231,10 @@ for (const t of themes) {
   await openInvitation(tp);
   await tp.waitForTimeout(2300);
   await shot(tp, `50-theme-${t}-b`);
-  await tp.waitForSelector(".inv-hero", { timeout: 30000 }).catch(() => undefined);
+  await tp.waitForSelector(".inv-hero, .sb-card-sec", { timeout: 30000 }).catch(() => undefined);
   await tp.waitForTimeout(1200);
   await shot(tp, `50-theme-${t}-c`);
-  ok(`Theme ${t} opens`, (await tp.locator(".inv-hero").count()) > 0);
+  ok(`Theme ${t} opens`, (await tp.locator(".inv-hero, .sb-card-sec").count()) > 0);
 }
 
 ok("No browser errors", errors.length === 0, errors.slice(0, 5).join(" | "));

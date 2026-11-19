@@ -25,13 +25,18 @@ for (const t of process.argv.slice(2)) {
   await p.goto(`${BASE}/preview/${t}`); await p.waitForTimeout(3500);
   await shot(t, "01-closed");
   const photo = await p.locator(".inv-photo").count();
-  if (photo && await p.locator(".k-seal").count()) {
+  if (await p.locator(".sb-seal").count()) {
+    await p.click(".sb-seal"); await p.waitForTimeout(900); await shot(t, "02-flap"); await p.waitForTimeout(900); await shot(t, "02b-rise");
+  } else if (photo && await p.locator(".k-seal").count()) {
     const c = await center(".ph-seal"); await p.mouse.move(...c); await p.mouse.down(); await p.waitForTimeout(600); await shot(t, "02-holding"); await p.waitForTimeout(700); await p.mouse.up();
   } else if (photo && await p.locator(".k-gatefold").count()) { await p.click(".ph-seal"); }
   else if (photo) { await p.click(".inv-ui .hint .big"); }
   else { await p.mouse.click(195, 450); }
   await p.waitForTimeout(800); await shot(t, "03-opening"); await p.waitForTimeout(2600);
-  await p.waitForSelector(".inv-hero", { timeout: 8000 }); await p.waitForTimeout(1500); await shot(t, "04-hero");
+  await p.waitForSelector(".inv-hero, .sb-card-sec", { timeout: 8000 });
+  if (await p.locator(".sb-card-sec").count()) { await shot(t, "04a-card-relief"); await p.waitForTimeout(1600); await shot(t, "04b-card-bloom"); await p.waitForTimeout(2600); }
+  else await p.waitForTimeout(1500);
+  await shot(t, "04-hero");
   if (process.env.QUICK) continue;
   if (await p.locator(".inv-curtain").count()) {
     const top = await p.evaluate(() => document.querySelector(".inv-curtain").getBoundingClientRect().top + scrollY);

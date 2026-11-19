@@ -1,4 +1,10 @@
-# Theme photography credits
+# Theme artwork credits
+
+**Painted scenes** for mocha-champagne, vellum-garden, muscat-sea, bab-al-noor, dana-pearl, layali-celestial, andalus-zellige, riad-jasmine, fanous-lantern, majlis-velvet, isfahan-mirror are original illustrations generated for Nawat (Figma AI image generation, owned by the account holder). The embossed paper versions (`relief.webp`) are derived from them by `scripts/make-relief.py`. The embossed envelope (`_shared/envelope.webp`) was generated with Canva AI.
+
+The photographs below remain for the other themes and for venue/texture crops.
+
+# Photography
 
 All photographs are used under the [Pexels License](https://www.pexels.com/license/) or the [Unsplash License](https://unsplash.com/license): free for commercial use, no attribution required (given here anyway). They were cropped, resized, colour-tinted (velvet textures) and re-encoded to WebP. Do not resell them as standalone photos.
 

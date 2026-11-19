@@ -7,6 +7,7 @@ import { digits, STRINGS, type Locale } from "./i18n";
 import { InvitationMusic } from "./music";
 import { Opening } from "./Opening";
 import { PhotoOpening } from "./PhotoOpening";
+import { StoryCard, StoryOpening } from "./Storybook";
 import { Closing, CurtainLetter, DressCode, Faq, HallArt, LightRoom, SealDate, StickyReply, SwipeNotices } from "./sections";
 import { Ornament } from "./Ornament";
 import { Rsvp } from "./Rsvp";
@@ -66,6 +67,7 @@ export function Invitation({ data: d }: { data: InvitationData }) {
     if (d.music && !music.current) music.current = new InvitationMusic(d.music);
     if (music.current) { music.current.start(); setMusicOn(true); }
   }, [d.music]);
+  const onStoryDone = useCallback(() => { setStage("open"); window.scrollTo(0, 0); }, []);
   const onDone = useCallback(() => {
     setFlash(true);
     setTimeout(() => { setStage("open"); window.scrollTo(0, 0); setTimeout(() => setFlash(false), 120); }, 650);
@@ -88,6 +90,10 @@ export function Invitation({ data: d }: { data: InvitationData }) {
     setMusicOn(music.current.toggle());
   };
   const notices = d.rsvp.notices.filter((n) => n.mode !== "off");
+  // Storybook: embossed envelope → relief card → painted colour bloom (every theme with a painted scene).
+  const story = !d.art.cover && !!d.art.reveal;
+  const relief = d.art.relief ?? d.art.reveal;
+  const particles = d.theme.particles !== "none" && <div className={`fx fx-${d.theme.particles}`} aria-hidden="true">{Array.from({ length: d.theme.particles === "stars" ? 28 : 16 }, (_, i) => <i key={i} style={{ left: `${(i * 37 + 11) % 100}%`, top: d.theme.particles === "stars" ? `${(i * 53) % 70}%` : undefined, animationDelay: `${(i * 0.73) % 7}s`, animationDuration: `${8 + (i % 5) * 1.5}s` }} />)}</div>;
 
   return (
     <div className={`inv${d.mode !== "live" ? " has-banner" : ""}`} dir={lang === "ar" ? "rtl" : "ltr"} lang={lang} style={vars}>
@@ -103,7 +109,11 @@ export function Invitation({ data: d }: { data: InvitationData }) {
       </div>
 
       <div className={`inv-stage${stage === "open" ? " gone" : ""}`} role="dialog" aria-modal={stage !== "open"} aria-label="Invitation opening" style={stage === "open" ? { visibility: "hidden" } : undefined}>
-        {d.art.cover || d.art.reveal
+        {story
+          ? <StoryOpening envelope="/themes/_shared/envelope.webp" envelopeTint={d.theme.envelope} liner={`color-mix(in srgb, ${d.theme.envelope} 45%, ${d.theme.palette.night})`}
+              relief={relief!} faux={!d.art.relief} tone={d.theme.tone} accent={d.accent} script={d.theme.fonts.script} monogram={mono} t={t} whoText={d.guest?.name ?? t.ourGuests}
+              replayToken={replay} reducedMotion={reducedMotion} onBegin={onBegin} onDone={onStoryDone} />
+          : d.art.cover
           ? <PhotoOpening interaction={d.theme.interaction} cover={d.art.cover ?? null} reveal={d.art.reveal ?? null} texture={d.art.texture ?? null} accent={d.accent} script={d.theme.fonts.script} monogram={mono}
               t={t} whoText={d.guest?.name ?? t.ourGuests} replayToken={replay} reducedMotion={reducedMotion} onBegin={onBegin} onDone={onDone} />
           : <Opening theme={d.theme} accent={d.accent} monogram={mono} names={{ en: namesEn, ar: namesAr }} guestName={guestName} dateText={dateText}
@@ -113,9 +123,20 @@ export function Invitation({ data: d }: { data: InvitationData }) {
 
       {stage === "open" && (
         <main className="inv-col">
+          {story ? (
+            <StoryCard relief={relief!} painted={d.art.reveal!} tone={d.theme.tone} bism={c.verse} kicker={t.together}
+              n1={pick(c.partner1, lang)} n2={pick(c.partner2, lang)} amp={lang === "ar" ? "و" : "&"}
+              alt={bilingual ? (lang === "ar" ? namesEn : namesAr || null) : null}
+              message={pick(c.message, lang)} families={pick(c.families, lang)} lang={lang} scrollLabel={t.scroll} fx={particles}
+              details={[
+                { icon: "date", label: fmt({ weekday: "long" }), value: fmt({ day: "numeric", month: "long", year: "numeric" }) },
+                { icon: "time", label: t.timeLabel, value: fmt({ hour: "numeric", minute: "2-digit" }) },
+                ...(pick(c.venue.name, lang) ? [{ icon: "place" as const, label: t.venue, value: pick(c.venue.name, lang), href: c.venue.mapUrl || undefined }] : []),
+              ]} />
+          ) : (
           <section className={`dark inv-hero h-${d.theme.hero}${d.art.reveal ? " art" : ""}`}>
             {d.art.reveal && <div className="bg" style={{ backgroundImage: `url(${d.art.reveal})` }} aria-hidden="true" />}
-            {d.theme.particles !== "none" && <div className={`fx fx-${d.theme.particles}`} aria-hidden="true">{Array.from({ length: d.theme.particles === "stars" ? 28 : 16 }, (_, i) => <i key={i} style={{ left: `${(i * 37 + 11) % 100}%`, top: d.theme.particles === "stars" ? `${(i * 53) % 70}%` : undefined, animationDelay: `${(i * 0.73) % 7}s`, animationDuration: `${8 + (i % 5) * 1.5}s` }} />)}</div>}
+            {particles}
             <div className="hero-in">
               {c.verse && <div className="inv-bism reveal" lang="ar">بسم الله الرحمن الرحيم</div>}
               <div className="inv-kicker reveal">{t.together}</div>
@@ -129,6 +150,7 @@ export function Invitation({ data: d }: { data: InvitationData }) {
             </div>
             <div className="inv-cue" aria-hidden="true"><span>{t.scroll}</span><i /></div>
           </section>
+          )}
 
           {c.sections.letter && pick(c.letter, lang) && (
             <CurtainLetter text={pick(c.letter, lang)} guest={d.guest?.name ?? null} signature={lang === "ar" && namesAr ? namesAr : namesEn} texture={d.art.texture ?? null} t={t} lang={lang} />

@@ -49,7 +49,9 @@ export function Invitation({ data: d }: { data: InvitationData }) {
 
   const vars = useMemo(() => {
     const p = d.theme.palette;
-    return { "--night": p.night, "--night2": p.night2, "--glow": p.glow, "--paper": p.paper, "--paper2": p.paper2, "--ink": p.ink, "--muted": p.muted, "--cream": p.cream, "--mutedDark": p.mutedDark, "--accent": d.accent, "--accentText": p.accentText, "--onAccent": p.onAccent, "--display": `"${d.theme.fonts.display}"`, "--arabic": `"${d.theme.fonts.arabic}"`, "--script": `"${d.theme.fonts.script}"` } as React.CSSProperties;
+    return { "--night": p.night, "--night2": p.night2, "--glow": p.glow, "--paper": p.paper, "--paper2": p.paper2, "--ink": p.ink, "--muted": p.muted, "--cream": p.cream, "--mutedDark": p.mutedDark, "--accent": d.accent, "--accentText": p.accentText, "--onAccent": p.onAccent, "--display": `"${d.theme.fonts.display}"`, "--arabic": `"${d.theme.fonts.arabic}"`, "--script": `"${d.theme.fonts.script}"`,
+      // All-caps display faces stay on the names; running text uses a readable serif.
+      "--msg": ["Cinzel", "Cinzel Decorative", "Poiret One"].includes(d.theme.fonts.display) ? `"Cormorant Garamond"` : `"${d.theme.fonts.display}"` } as React.CSSProperties;
   }, [d.theme, d.accent]);
 
   const start = new Date(d.startsAt);
@@ -101,8 +103,8 @@ export function Invitation({ data: d }: { data: InvitationData }) {
       </div>
 
       <div className={`inv-stage${stage === "open" ? " gone" : ""}`} role="dialog" aria-modal={stage !== "open"} aria-label="Invitation opening" style={stage === "open" ? { visibility: "hidden" } : undefined}>
-        {d.art.cover
-          ? <PhotoOpening interaction={d.theme.interaction} cover={d.art.cover} reveal={d.art.reveal ?? null} texture={d.art.texture ?? null} accent={d.accent} script={d.theme.fonts.script} monogram={mono}
+        {d.art.cover || d.art.reveal
+          ? <PhotoOpening interaction={d.theme.interaction} cover={d.art.cover ?? null} reveal={d.art.reveal ?? null} texture={d.art.texture ?? null} accent={d.accent} script={d.theme.fonts.script} monogram={mono}
               t={t} whoText={d.guest?.name ?? t.ourGuests} replayToken={replay} reducedMotion={reducedMotion} onBegin={onBegin} onDone={onDone} />
           : <Opening theme={d.theme} accent={d.accent} monogram={mono} names={{ en: namesEn, ar: namesAr }} guestName={guestName} dateText={dateText}
               t={t} whoText={d.guest?.name ?? t.ourGuests} replayToken={replay} onBegin={onBegin} onDone={onDone} />}
@@ -111,18 +113,20 @@ export function Invitation({ data: d }: { data: InvitationData }) {
 
       {stage === "open" && (
         <main className="inv-col">
-          <section className={`dark inv-hero${d.art.reveal ? " art" : ""}`}>
+          <section className={`dark inv-hero h-${d.theme.hero}${d.art.reveal ? " art" : ""}`}>
             {d.art.reveal && <div className="bg" style={{ backgroundImage: `url(${d.art.reveal})` }} aria-hidden="true" />}
-            {!d.art.reveal && <div className="sparks" aria-hidden="true">{Array.from({ length: 14 }, (_, i) => <i key={i} style={{ left: `${(i * 37) % 100}%`, animationDelay: `${(i * 0.73) % 6}s`, animationDuration: `${7 + (i % 5)}s` }} />)}</div>}
-            {c.verse && <div className="inv-bism reveal" lang="ar">بسم الله الرحمن الرحيم</div>}
-            <div className="inv-kicker reveal">{t.together}</div>
-            <h1 className="inv-names reveal">
-              <span>{pick(c.partner1, lang)}</span><span className="amp">{lang === "ar" ? "و" : "&"}</span><span>{pick(c.partner2, lang)}</span>
-            </h1>
-            {bilingual && (lang === "en" ? namesAr : true) && <div className="inv-alt reveal" lang={lang === "ar" ? "en" : "ar"} style={{ fontFamily: lang === "ar" ? "var(--display-font)" : "var(--ar-font)" }}>{lang === "ar" ? namesEn : namesAr}</div>}
-            <Ornament kind={d.theme.ornament} />
-            <p className="inv-msg reveal">{pick(c.message, lang)}</p>
-            {pick(c.families, lang) && <div className="inv-fam reveal">{pick(c.families, lang)}</div>}
+            {d.theme.particles !== "none" && <div className={`fx fx-${d.theme.particles}`} aria-hidden="true">{Array.from({ length: d.theme.particles === "stars" ? 28 : 16 }, (_, i) => <i key={i} style={{ left: `${(i * 37 + 11) % 100}%`, top: d.theme.particles === "stars" ? `${(i * 53) % 70}%` : undefined, animationDelay: `${(i * 0.73) % 7}s`, animationDuration: `${8 + (i % 5) * 1.5}s` }} />)}</div>}
+            <div className="hero-in">
+              {c.verse && <div className="inv-bism reveal" lang="ar">بسم الله الرحمن الرحيم</div>}
+              <div className="inv-kicker reveal">{t.together}</div>
+              <h1 className="inv-names reveal">
+                <span className="n1">{pick(c.partner1, lang)}</span><span className="amp">{lang === "ar" ? "و" : "&"}</span><span className="n2">{pick(c.partner2, lang)}</span>
+              </h1>
+              {bilingual && (lang === "en" ? namesAr : true) && <div className="inv-alt reveal" lang={lang === "ar" ? "en" : "ar"} style={{ fontFamily: lang === "ar" ? "var(--display-font)" : "var(--ar-font)" }}>{lang === "ar" ? namesEn : namesAr}</div>}
+              <Ornament kind={d.theme.ornament} />
+              <p className="inv-msg reveal">{pick(c.message, lang)}</p>
+              {pick(c.families, lang) && <div className="inv-fam reveal">{pick(c.families, lang)}</div>}
+            </div>
             <div className="inv-cue" aria-hidden="true"><span>{t.scroll}</span><i /></div>
           </section>
 

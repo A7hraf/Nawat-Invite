@@ -24,7 +24,7 @@ export default async function MusicPage() {
                 <td><strong>{t.titleEn}</strong><div className="tiny muted"><span lang="ar" className="ar">{t.titleAr}</span>{t.mood ? ` · ${t.mood}` : ""}</div>
                   {t.assetId && <audio controls preload="none" src={`/media/${t.assetId}`} style={{ height: 32, marginTop: 6, maxWidth: 240 }} />}</td>
                 <td>{brand.tierNames[t.minTier].en}</td>
-                <td className="small">{t.builtin ? "Built-in" : "Uploaded"}</td>
+                <td className="small">{t.builtin?.startsWith("library:") ? "Library (CC0)" : t.builtin ? "Built-in" : "Uploaded"}</td>
                 <td><form action={toggleTrackAction}><input type="hidden" name="trackId" value={t.id} /><button className={`btn btn-sm ${t.active ? "btn-ghost" : "btn-primary"}`} type="submit">{t.active ? "Hide" : "Show"}</button></form></td>
               </tr>))}</tbody>
           </table>

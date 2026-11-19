@@ -77,7 +77,7 @@ export function defaultContent(names: { p1en: string; p2en: string; p1ar?: strin
       { time: "22:30", title: bi("Dinner", "العشاء"), detail: bi("Served in the main hall", "في القاعة الرئيسية") },
     ],
     sections: { countdown: true, schedule: true, venue: true, notices: true, gallery: false, letter: true, dress: false, faq: false, closing: true },
-    letter: bi("Dear family and friends, we would be honoured to have you beside us as we begin our life together.", "أهلنا وأحبتنا، يسعدنا أن تكونوا إلى جانبنا ونحن نبدأ حياتنا معاً."),
+    letter: bi("It would mean the world to us to have you beside us as we begin our life together. Your presence is the most beautiful gift.", "يسعدنا ويشرّفنا أن تكونوا إلى جانبنا ونحن نبدأ حياتنا معاً، فحضوركم أجمل هدية."),
     dressCode: { title: bi("Evening wear", "لباس السهرة"), note: bi("", ""), colors: [] },
     faq: [],
     closingPhoto: null,

@@ -1,7 +1,7 @@
 import "server-only";
 import { eq } from "drizzle-orm";
 import type { Tier } from "@/lib/entitlements";
-import { ART_SLOTS, type ThemeArt } from "@/themes/catalog";
+import { ART_SLOTS, bundledArt, themeBySlug, type ThemeArt } from "@/themes/catalog";
 import { getDb, schema } from "./db";
 import { mediaUrl } from "./storage";
 
@@ -15,11 +15,12 @@ export async function themeSettings() {
   return { tierOf, hidden };
 }
 
-/** Artwork of one theme as public URLs, ready for the invitation page. */
+/** Artwork of one theme as public URLs: bundled art, overridden slot by slot by admin uploads. */
 export async function themeArtUrls(slug: string): Promise<ThemeArt> {
   const db = await getDb();
   const row = await db.query.themes.findFirst({ where: eq(schema.themes.slug, slug), columns: { art: true } });
-  const out: ThemeArt = {};
+  const t = themeBySlug(slug);
+  const out: ThemeArt = t ? bundledArt(t) : {};
   for (const k of ART_SLOTS) { const id = row?.art?.[k]; if (id) out[k] = mediaUrl(id); }
   return out;
 }

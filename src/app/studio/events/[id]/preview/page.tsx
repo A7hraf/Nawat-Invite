@@ -1,6 +1,6 @@
 import { studioEvent } from "@/server/studio";
 import { buildInvitationData } from "@/server/invitation";
-import { googleFontsHref } from "@/themes/catalog";
+import { ThemeFonts } from "@/components/invitation/ThemeFonts";
 import { Invitation } from "@/components/invitation/Invitation";
 
 /** Shows the invitation exactly as guests will see it, including drafts. Replies are disabled. */
@@ -10,7 +10,7 @@ export default async function PreviewPage({ params }: { params: Promise<{ id: st
   const data = await buildInvitationData(ev, ctx.ent, { mode: "preview", guest: { name: "Ahmed Al Harthy & family", allowedCompanions: 3 } });
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 100, overflow: "auto" }}>
-      <link rel="stylesheet" href={googleFontsHref(data.theme)} />
+      <ThemeFonts theme={data.theme} />
       <Invitation data={data} />
     </div>
   );

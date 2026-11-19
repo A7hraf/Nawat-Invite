@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { HttpError } from "@/server/request";
 import { loadPublicEvent } from "@/server/services/rsvp";
 import { buildInvitationData } from "@/server/invitation";
-import { googleFontsHref } from "@/themes/catalog";
+import { ThemeFonts } from "@/components/invitation/ThemeFonts";
 import { Invitation } from "@/components/invitation/Invitation";
 import { ENDED, InviteMessage, NOT_FOUND, PERSONAL } from "../invite-message";
 
@@ -16,7 +16,7 @@ export default async function OpenInvitation({ params }: { params: Promise<{ slu
     const { ev, ent } = await loadPublicEvent(slug);
     if (!ev.openLinkEnabled || !ent.invitations.openLinkAllowed) return <InviteMessage {...PERSONAL} />;
     const data = await buildInvitationData(ev, ent, { mode: "live" });
-    return <><link rel="stylesheet" href={googleFontsHref(data.theme)} /><Invitation data={data} /></>;
+    return <><ThemeFonts theme={data.theme} /><Invitation data={data} /></>;
   } catch (e) {
     if (e instanceof HttpError) return <InviteMessage {...(e.status === 410 ? ENDED : NOT_FOUND)} />;
     throw e;

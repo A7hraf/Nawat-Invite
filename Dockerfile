@@ -23,6 +23,7 @@ COPY --from=build --chown=nawat:nawat /app/package.json /app/next.config.mjs /ap
 COPY --from=build --chown=nawat:nawat /app/drizzle ./drizzle
 COPY --from=build --chown=nawat:nawat /app/scripts ./scripts
 COPY --from=build --chown=nawat:nawat /app/src ./src
+COPY --from=build --chown=nawat:nawat /app/public ./public
 USER nawat
 EXPOSE 3000
 ENTRYPOINT ["/usr/bin/tini", "--"]

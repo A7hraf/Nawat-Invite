@@ -35,7 +35,7 @@ export default async function ThemesPage() {
                   <button className="btn btn-ghost btn-sm" type="submit">Save</button>
                 </form>
                 <div className="row between small">
-                  <a href={`/admin/themes/${t.slug}`}>Artwork · {Object.keys(r?.art ?? {}).length} of 7</a>
+                  <a href={`/admin/themes/${t.slug}`}>Artwork · {new Set([...t.art, ...Object.keys(r?.art ?? {})]).size} of 7</a>
                   <a href={`/preview/${t.slug}`} target="_blank" rel="noopener">Preview</a>
                 </div>
               </div>

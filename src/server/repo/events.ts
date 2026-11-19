@@ -3,6 +3,7 @@ import { and, count, desc, eq, inArray, isNull, sql, sum } from "drizzle-orm";
 import { EntitlementError, tierRank, type Entitlements } from "@/lib/entitlements";
 import { defaultContent, defaultRsvpConfig, parseContent, parseRsvpConfig, type EventContent, type RsvpConfig } from "@/lib/event-content";
 import { themeBySlug } from "@/themes/catalog";
+import { LIBRARY_PREFIX } from "@/lib/music-library";
 import { getDb, schema, type Exec } from "../db";
 import { randomKey } from "../crypto";
 import { audit, type AuditActor } from "../audit";
@@ -32,6 +33,12 @@ export async function createEvent(actor: AuditActor, accountId: string, ent: Ent
   if (!(await themeAllowed(ent, input.themeSlug))) throw new EntitlementError("themes.tiers", "This theme is not part of your plan.");
   const content = defaultContent({ p1en: input.p1en, p2en: input.p2en, p1ar: input.p1ar, p2ar: input.p2ar });
   if (!ent.invitations.bilingual) { content.locales = ["ar"]; content.defaultLocale = "ar"; }
+  const theme = themeBySlug(input.themeSlug);
+  if (ent.music.enabled && theme) {
+    // Start with the theme's own soundtrack; the couple can change it in Studio → Music.
+    const track = await db.query.musicTracks.findFirst({ where: and(eq(schema.musicTracks.builtin, LIBRARY_PREFIX + theme.music), eq(schema.musicTracks.active, true)) });
+    if (track) content.music.trackId = track.id;
+  }
   const slug = `${slugify(`${input.p1en} ${input.p2en}`)}-${randomKey(5)}`;
   const [ev] = await db.insert(schema.events).values({
     accountId, title: input.title, type: input.type, startsAt: input.startsAt,

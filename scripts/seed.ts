@@ -4,6 +4,7 @@ import { eq, sql } from "drizzle-orm";
 import { PACKAGES, TIERS, defaultEntitlements } from "../src/lib/entitlements";
 import { BRAND_DEFAULTS } from "../src/lib/brand";
 import { THEMES } from "../src/themes/catalog";
+import { LIBRARY_PREFIX, MUSIC_LIBRARY } from "../src/lib/music-library";
 import { getDb, schema } from "../src/server/db";
 import { hashPassword } from "../src/server/auth/password";
 import { oneTimePassword } from "../src/server/crypto";
@@ -45,7 +46,12 @@ async function main() {
     const exists = await db.query.musicTracks.findFirst({ where: eq(schema.musicTracks.builtin, b.builtin) });
     if (!exists) await db.insert(schema.musicTracks).values({ ...b, licence: "Nawat built-in (generated in the browser)" });
   }
-  console.log("✓ Built-in music");
+  for (const m of MUSIC_LIBRARY) {
+    const key = LIBRARY_PREFIX + m.slug;
+    const exists = await db.query.musicTracks.findFirst({ where: eq(schema.musicTracks.builtin, key) });
+    if (!exists) await db.insert(schema.musicTracks).values({ builtin: key, titleEn: m.en, titleAr: m.ar, mood: m.mood, minTier: m.minTier, licence: `${m.artist} (CC0 / public domain)` });
+  }
+  console.log(`✓ Built-in music + ${MUSIC_LIBRARY.length} licensed tracks`);
 
   await db.insert(schema.systemSettings).values({ key: "brand", value: { footer: BRAND_DEFAULTS.footer, tierNames: BRAND_DEFAULTS.tierNames } }).onConflictDoNothing();
 

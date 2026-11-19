@@ -5,7 +5,10 @@ import { csvCell, parseCsv } from "@/lib/csv";
 import { decrypt, encrypt, lookupHash, oneTimePassword, randomKey } from "@/server/crypto";
 import { extractPassKey } from "@/server/services/gate";
 import { fillParts } from "@/components/invitation/i18n";
-import { ART_SLOTS, ART_SLOT_INFO, THEMES } from "@/themes/catalog";
+import { existsSync } from "node:fs";
+import path from "node:path";
+import { ART_SLOTS, ART_SLOT_INFO, bundledArt, themeFontHrefs, themeMusicUrl, THEMES } from "@/themes/catalog";
+import { MUSIC_LIBRARY } from "@/lib/music-library";
 import { EventContentSchema } from "@/lib/event-content";
 
 describe("entitlements", () => {
@@ -75,15 +78,26 @@ describe("input handling", () => {
 });
 
 describe("themes", () => {
-  it("has 10 themes with unique slugs across all tiers and openings", () => {
-    expect(THEMES).toHaveLength(10);
-    expect(new Set(THEMES.map((t) => t.slug)).size).toBe(10);
+  it("has 20 themes with unique slugs across all tiers and openings", () => {
+    expect(THEMES).toHaveLength(20);
+    expect(new Set(THEMES.map((t) => t.slug)).size).toBe(20);
     expect(new Set(THEMES.map((t) => t.tier))).toEqual(new Set(["IVORY", "GILDED", "ROYAL_SEAL"]));
     expect(new Set(THEMES.map((t) => t.opening))).toEqual(new Set(["envelope", "doors", "curtain", "box"]));
   });
   it("gives every theme a script font, an interaction and documented art slots", () => {
     for (const t of THEMES) { expect(t.fonts.script).toBeTruthy(); expect(["seal", "ribbon", "gatefold", "curtain"]).toContain(t.interaction); }
     for (const s of ART_SLOTS) expect(ART_SLOT_INFO[s].label).toBeTruthy();
+  });
+  it("ships every bundled artwork, font and soundtrack file a theme refers to", () => {
+    const pub = (p: string) => path.join(process.cwd(), "public", p);
+    for (const t of THEMES) {
+      expect(t.art).toContain("reveal");
+      for (const url of Object.values(bundledArt(t))) expect(existsSync(pub(url!))).toBe(true);
+      for (const href of themeFontHrefs(t)) expect(existsSync(pub(href))).toBe(true);
+      expect(existsSync(pub(themeMusicUrl(t)))).toBe(true);
+      expect(MUSIC_LIBRARY.some((m) => m.slug === t.music)).toBe(true);
+    }
+    expect(new Set(THEMES.map((t) => `${t.interaction}/${t.hero}/${t.fonts.display}`)).size).toBeGreaterThanOrEqual(18);
   });
   it("reads invitations saved before the v2 sections existed", () => {
     const old = { partner1: { en: "A", ar: "" }, partner2: { en: "B", ar: "" }, families: { en: "", ar: "" }, message: { en: "", ar: "" },

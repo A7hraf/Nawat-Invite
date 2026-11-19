@@ -32,6 +32,7 @@ for (const t of process.argv.slice(2)) {
   else { await p.mouse.click(195, 450); }
   await p.waitForTimeout(800); await shot(t, "03-opening"); await p.waitForTimeout(2600);
   await p.waitForSelector(".inv-hero", { timeout: 8000 }); await p.waitForTimeout(1500); await shot(t, "04-hero");
+  if (process.env.QUICK) continue;
   if (await p.locator(".inv-curtain").count()) {
     const top = await p.evaluate(() => document.querySelector(".inv-curtain").getBoundingClientRect().top + scrollY);
     for (const [k, f] of [["05-curtain-a", 0], ["06-curtain-b", 0.45], ["07-curtain-c", 1.1]]) { await p.evaluate(([y]) => scrollTo(0, y), [top + f * 844]); await p.waitForTimeout(700); await shot(t, k); }

@@ -1,21 +1,33 @@
 # Themes
 
-The launch collection has **10 original themes**, defined in [`src/themes/catalog.ts`](../src/themes/catalog.ts). Each theme sets a palette (dark and light surfaces, an accent metal, contrast-checked text colours), a pair of display fonts (Latin + Arabic), an ornament, and one of four real-time 3D openings.
+The collection has **20 themes**, defined in [`src/themes/catalog.ts`](../src/themes/catalog.ts). Each one ships with licensed photography (`public/themes/<slug>/`, see [CREDITS](../public/themes/CREDITS.md)), self-hosted OFL fonts (`public/fonts`) and its own CC0 / public-domain soundtrack (`public/music`, see [CREDITS](../public/music/CREDITS.md)). Themes differ in opening gesture, hero composition (classic, editorial, arch, frame), floating particles (gold dust, petals, stars, bubbles), palette, Latin + script + Arabic type and music.
 
-| Theme | Tier | Opening | Direction |
-|---|---|---|---|
-| Mocha & Champagne · موكا وشمبانيا | Ivory | Envelope | 2026 forecast palette: mocha, champagne, warm ivory |
-| Vellum Garden · حديقة الرق | Ivory | Envelope | Sage green, vellum, botanical |
-| Muscat Sea · بحر مسقط | Ivory | Envelope | Omani coast: deep blue, white plaster, silver waves |
-| Bab Al Noor · باب النور | Gilded | Palace doors | Carved Omani doors opening onto golden light |
-| Dana Pearl · دانة | Gilded | Jewel box | Gulf pearling heritage, blush and silver, iridescent pearl |
-| Layali · ليالي | Gilded | Velvet curtain | Midnight navy velvet with gold stars |
-| Desert Rose · وردة الصحراء | Gilded | Palace doors | Terracotta, sand and sunset rose |
-| Majlis Velvet · مخمل المجلس | Royal Seal | Envelope | Signature look: wax seal, embossed ivory, wine lining |
-| Emerald Deco · زمرد آرت ديكو | Royal Seal | Jewel box | Emerald lacquer, Art Deco gold |
-| Noir Monogram · مونوغرام نوار | Royal Seal | Velvet curtain | Black velvet, silver, editorial type |
+| Theme | Tier | Opening | Hero | Type (display / script) | Music |
+|---|---|---|---|---|---|
+| Mocha & Champagne | Ivory | Hold the wax seal | Classic | Cormorant Garamond / Pinyon Script | Celebrated Minuet |
+| Vellum Garden | Ivory | Hold the seal (veil) | Editorial | Fraunces / Italianno | Magic in the Garden |
+| Muscat Sea | Ivory | Hold the seal (veil) | Frame | Italiana / Great Vibes | Neptunian Princess |
+| Blush Letter | Ivory | Hold the seal (veil) | Arch | Gilda Display / Parisienne | Lovely Piano Song |
+| Garden Veil | Ivory | Part the chiffon | Classic | Bellefair / Allura | Hold Me, Love Me |
+| Henna Night | Ivory | Hold the seal (veil) | Arch | Prata / Alex Brush | The Desert |
+| Bab Al Noor | Gilded | Open the studded doors | Frame | Cinzel / Pinyon Script | Nomadic Sunset |
+| Dana Pearl | Gilded | Untie the ribbon | Classic | Bodoni Moda / Great Vibes | Canon in D |
+| Layali | Gilded | Part the navy velvet | Editorial | Marcellus / Pinyon Script | Landra's Dream |
+| Desert Rose | Gilded | Open the gatefold (veil) | Editorial | Libre Caslon Display / Italianno | The Desert |
+| Andalus | Gilded | Open the zellige arch | Arch | Della Respira / Monsieur La Doulaise | A Waltz for Naseem |
+| Riad Jasmine | Gilded | Open the gatefold (veil) | Frame | DM Serif Display / Rouge Script | Romantic Inspiration |
+| Fanous | Gilded | Hold the seal (veil) | Classic | Forum / Mea Culpa | Nomadic Sunset |
+| Marble Peony | Gilded | Untie the ribbon | Editorial | Cormorant Garamond / WindSong | All's Fair in Love |
+| Majlis Velvet | Royal Seal | Hold the seal on red velvet | Classic | Gloock / Pinyon Script | Royal Coupling |
+| Emerald Deco | Royal Seal | Hold the seal on the green envelope | Frame | Poiret One / Italianno | Brandenburg No. 3 |
+| Noir Monogram | Royal Seal | Part the black silk | Editorial | Playfair Display / Luxurious Script | Air on the G String |
+| Isfahan | Royal Seal | Open the gatefold (veil) | Arch | Cinzel Decorative / Corinthia | Goldberg Aria |
+| Rouge Noir | Royal Seal | Untie the ribbon | Editorial | Tenor Sans / Imperial Script | Night in Venice |
+| Blanc Royale | Royal Seal | Part the ivory velvet | Frame | Italiana / Monsieur La Doulaise | Celebration |
 
-Research directions (2026): editorial typography, tactile and embossed papers, vellum overlays, the mocha / champagne / ivory palette, navy and gold, jewel tones, and Gulf palace-arch styling with full Arabic RTL support.
+“Veil” means the theme has no separate cover photo: the guest sees the scene behind frosted glass, and it clears as they open it. Without WebGL or photos, the earlier 3D openings remain as a fallback.
+
+Rebuild the bundled assets with `node scripts/build-theme-art.mjs` (needs the source photos in `.data/theme-art-raw`) and `FONTSOURCE_DIR=… node scripts/build-fonts.mjs`.
 
 ## Theme engine v2: artwork and tactile moments
 

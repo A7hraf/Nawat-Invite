@@ -97,15 +97,15 @@ await a.goto(`${BASE}/admin/themes/vellum-garden`);
 await a.setInputFiles("#f-cover", { name: "cover.png", mimeType: "image/png", buffer: testPng });
 await a.locator("form:has(#f-cover) button[type=submit]").click();
 await a.waitForSelector("text=Artwork saved");
-ok("Admin uploads theme artwork", (await a.locator("text=Uploaded").count()) >= 1);
+ok("Admin uploads theme artwork", (await a.locator(".badge.ok").count()) === 1);
 await shot(a, "07b-admin-theme-art", true);
 await a.goto(`${BASE}/preview/vellum-garden`);
 await a.waitForTimeout(1500);
 ok("Theme with cover artwork uses the photo opening", (await a.locator(".inv-photo.k-seal").count()) === 1);
 await a.goto(`${BASE}/admin/themes/vellum-garden`);
-await a.locator("form:has(input[name=slot][value=cover]) >> text=Remove").click();
-await a.waitForLoadState("networkidle");
-ok("Admin removes theme artwork", (await a.locator("text=Uploaded").count()) === 0);
+await a.locator("form:has(input[name=slot][value=cover]) button.btn-danger").click();
+await a.waitForSelector(".badge.ok", { state: "detached", timeout: 10000 }).catch(() => undefined);
+ok("Admin removes theme artwork", (await a.locator(".badge.ok").count()) === 0);
 const evil = await a.goto(`${BASE}/admin/themes/not-a-theme`); ok("Unknown theme artwork page is 404", evil.status() === 404);
 
 // ── 3. Manage as client → studio
@@ -206,7 +206,7 @@ await n.click("text=Start now");
 await n.fill("#p1en", "Noor"); await n.fill("#p2en", "Faisal"); await n.fill("#p1ar", "نور"); await n.fill("#p2ar", "فيصل");
 await n.fill("#startsAt", "2027-01-14T19:30");
 const locked = await n.locator('input[name="themeSlug"][disabled]').count();
-ok("Royal themes are locked for a Gilded client", locked === 3, `${locked} locked`);
+ok("Royal themes are locked for a Gilded client", locked === 6, `${locked} locked`);
 await n.check('input[value="bab-al-noor"]', { force: true });
 await shot(n, "41-client-new", true);
 await n.click("text=Create invitation");
@@ -220,8 +220,8 @@ await n.waitForSelector("text=Your invitation is live");
 ok("Client publishes their invitation", true);
 await shot(n, "42-client-published", true);
 
-// ── 8. All ten themes
-const themes = ["mocha-champagne", "vellum-garden", "muscat-sea", "bab-al-noor", "dana-pearl", "layali-celestial", "desert-rose", "majlis-velvet", "emerald-deco", "noir-monogram"];
+// ── 8. All twenty themes
+const themes = ["mocha-champagne", "vellum-garden", "muscat-sea", "blush-letter", "garden-veil", "henna-night", "bab-al-noor", "dana-pearl", "layali-celestial", "desert-rose", "andalus-zellige", "riad-jasmine", "fanous-lantern", "marble-peony", "majlis-velvet", "emerald-deco", "noir-monogram", "isfahan-mirror", "rouge-noir", "blanc-royale"];
 const tp = await (await browser.newContext({ ...phone, storageState: await adminCtx.storageState() })).newPage(); watch(tp, "themes");
 for (const t of themes) {
   await tp.goto(`${BASE}/preview/${t}`);

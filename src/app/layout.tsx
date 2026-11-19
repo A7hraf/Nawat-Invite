@@ -16,9 +16,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" />
+        <link rel="stylesheet" href="/fonts/cormorant-garamond.css" />
+        <link rel="stylesheet" href="/fonts/manrope.css" />
+        <link rel="stylesheet" href="/fonts/amiri.css" />
+        <link rel="stylesheet" href="/fonts/ibm-plex-sans-arabic.css" />
       </head>
       <body>{children}</body>
     </html>

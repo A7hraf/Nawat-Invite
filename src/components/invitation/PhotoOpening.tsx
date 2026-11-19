@@ -6,7 +6,7 @@ import { HoldRing, WaxSeal } from "./WaxSeal";
 import { useHold } from "./useHold";
 
 type Props = {
-  interaction: Interaction; cover: string; reveal: string | null; texture: string | null;
+  interaction: Interaction; cover: string | null; reveal: string | null; texture: string | null;
   accent: string; script: string; monogram: string;
   t: Strings; whoText: string; replayToken: number; reducedMotion: boolean;
   onBegin: () => void; onDone: () => void;
@@ -19,6 +19,9 @@ const OPEN_MS: Record<Interaction, number> = { seal: 2300, ribbon: 2400, gatefol
  * ribbon, opens the gatefold or parts the curtain, and the revealed scene comes forward.
  */
 export function PhotoOpening(p: Props) {
+  // Without a cover photo the revealed scene itself is shown behind frosted glass (the "veil").
+  const coverSrc = p.cover ?? p.reveal ?? "";
+  const veil = !p.cover;
   const [phase, setPhase] = useState<"idle" | "opening" | "done">("idle");
   const [ready, setReady] = useState(false);
   const begun = useRef(false);
@@ -29,10 +32,10 @@ export function PhotoOpening(p: Props) {
   // Wait for the cover to decode so the guest never sees it pop in.
   useEffect(() => {
     const img = new Image();
-    img.src = p.cover;
+    img.src = coverSrc;
     img.decode().catch(() => undefined).finally(() => setReady(true));
     if (p.reveal) { const r = new Image(); r.src = p.reveal; }
-  }, [p.cover, p.reveal]);
+  }, [coverSrc, p.reveal]);
 
   const begin = () => { if (!begun.current) { begun.current = true; cbs.current.onBegin(); } };
   const open = () => {
@@ -52,22 +55,22 @@ export function PhotoOpening(p: Props) {
   useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
 
   const k = p.interaction;
-  const cls = `inv-photo k-${k} ${phase}${ready ? " ready" : ""}${p.reducedMotion ? " still" : ""}`;
+  const cls = `inv-photo k-${k} ${phase}${ready ? " ready" : ""}${veil ? " veil" : ""}${p.reducedMotion ? " still" : ""}`;
   const prompt = k === "seal" ? p.t.holdSeal : k === "ribbon" ? p.t.untie : k === "curtain" ? p.t.partCurtain : p.t.openGate;
   const halves = k === "gatefold" || k === "curtain";
   const tex = p.texture && k === "curtain" ? `url(${p.texture})` : null;
 
   return (
     <div className={cls}>
-      <div className="ph-reveal" style={{ backgroundImage: `url(${p.reveal ?? p.cover})` }} />
+      <div className="ph-reveal" style={{ backgroundImage: `url(${p.reveal ?? coverSrc})` }} />
       {halves ? (
         <>
-          <div className="ph-half ph-l" style={{ backgroundImage: tex ?? `url(${p.cover})` }} onClick={open} />
-          <div className="ph-half ph-r" style={{ backgroundImage: tex ?? `url(${p.cover})` }} onClick={open} />
+          <div className="ph-half ph-l" style={k === "curtain" ? (tex ? { backgroundImage: tex } : undefined) : { backgroundImage: `url(${coverSrc})` }} onClick={open} />
+          <div className="ph-half ph-r" style={k === "curtain" ? (tex ? { backgroundImage: tex } : undefined) : { backgroundImage: `url(${coverSrc})` }} onClick={open} />
           {k === "curtain" && <div className="ph-valance" style={tex ? { backgroundImage: tex } : undefined} />}
         </>
       ) : (
-        <div className="ph-cover" style={{ backgroundImage: `url(${p.cover})` }} onClick={k === "ribbon" ? open : undefined} />
+        <div className="ph-cover" style={{ backgroundImage: `url(${coverSrc})` }} onClick={k === "ribbon" ? open : undefined} />
       )}
       {k === "ribbon" && (
         <div className="ph-ribbon" aria-hidden="true">

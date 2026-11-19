@@ -3,7 +3,8 @@ import { requireUser } from "@/server/auth/context";
 import { buildInvitationData } from "@/server/invitation";
 import { defaultEntitlements } from "@/lib/entitlements";
 import { defaultContent, defaultRsvpConfig } from "@/lib/event-content";
-import { googleFontsHref, themeBySlug } from "@/themes/catalog";
+import { themeBySlug, themeMusicUrl } from "@/themes/catalog";
+import { ThemeFonts } from "@/components/invitation/ThemeFonts";
 import { Invitation } from "@/components/invitation/Invitation";
 import type { EventRow } from "@/server/repo/events";
 
@@ -35,6 +36,6 @@ export default async function ThemePreview({ params }: { params: Promise<{ theme
   const startsAt = new Date(Date.now() + 40 * 86400_000);
   const ev = { id: "00000000-0000-0000-0000-000000000000", accountId: "sample", slug: "sample", themeSlug: t.slug, type: "WEDDING", status: "PUBLISHED", startsAt, endsAt: null, content, rsvpConfig: rsvp } as unknown as EventRow;
   const data = await buildInvitationData(ev, defaultEntitlements("ROYAL_SEAL", "ATELIER"), { mode: "sample", guest: { name: "Ahmed Al Harthy & family", allowedCompanions: 3 } });
-  data.music = { kind: "builtin", preset: t.tier === "ROYAL_SEAL" ? "royal-strings" : "hijaz-qanun" };
-  return <><link rel="stylesheet" href={googleFontsHref(t)} /><Invitation data={data} /></>;
+  data.music = { kind: "file", url: themeMusicUrl(t) };
+  return <><ThemeFonts theme={t} /><Invitation data={data} /></>;
 }

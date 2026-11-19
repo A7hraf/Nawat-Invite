@@ -120,7 +120,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Cinzel", arabic: "Aref Ruqaa", script: "Pinyon Script" }, interaction: "gatefold",
     ornament: "arch",
     scene: { surface: "#EADBC0", detail: "#C9A45C", frame: "#D9C6A2", light: "#FFE3A8", metal: "#D4AF63" },
-    music: "nomadic-sunset", particles: "gold", hero: "frame", tone: "light", envelope: "#f7eadf", art: ["reveal", "relief", "venue", "closing"],
+    music: "nomadic-sunset", particles: "gold", hero: "frame", tone: "light", envelope: "#f7eadf", art: ["video", "reveal", "relief", "venue", "closing"],
   },
   {
     slug: "dana-pearl", tier: "GILDED",
@@ -144,7 +144,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Marcellus", arabic: "Reem Kufi", script: "Pinyon Script" }, interaction: "curtain",
     ornament: "star",
     scene: { fabric: "#1E2F5E", fabric2: "#0B1530", metal: "#D6B26A", light: "#FFE7B5", stars: true },
-    music: "landras-dream", particles: "stars", hero: "editorial", tone: "dark", envelope: "#7f8fbf", art: ["reveal", "relief", "texture", "venue", "closing"],
+    music: "landras-dream", particles: "stars", hero: "editorial", tone: "dark", envelope: "#7f8fbf", art: ["video", "reveal", "relief", "texture", "venue", "closing"],
   },
   {
     slug: "desert-rose", tier: "GILDED",
@@ -266,7 +266,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Forum", arabic: "Katibeh", script: "Mea Culpa" }, interaction: "seal",
     ornament: "star",
     scene: { paper: "#F2E3C4", liner: "#3A2814", linerLine: "#E2B65C", pattern: "stars", seal: "#7A5426", metal: "#E2B65C" },
-    music: "nomadic-sunset", particles: "gold", hero: "classic", tone: "dark", envelope: "#d9b98a", art: ["reveal", "relief", "venue", "closing"],
+    music: "nomadic-sunset", particles: "gold", hero: "classic", tone: "dark", envelope: "#d9b98a", art: ["video", "reveal", "relief", "venue", "closing"],
   },
   {
     slug: "marble-peony", tier: "GILDED",
@@ -290,7 +290,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Cinzel Decorative", arabic: "Kufam", script: "Corinthia" }, interaction: "gatefold",
     ornament: "star",
     scene: { surface: "#1E3A7A", detail: "#E0B457", frame: "#C9D3EA", light: "#FFE8B0", metal: "#E0B457" },
-    music: "goldberg-aria", particles: "stars", hero: "arch", tone: "dark", envelope: "#8ea4d6", art: ["reveal", "relief", "venue", "closing"],
+    music: "goldberg-aria", particles: "stars", hero: "arch", tone: "dark", envelope: "#8ea4d6", art: ["video", "reveal", "relief", "venue", "closing"],
   },
   {
     slug: "rouge-noir", tier: "ROYAL_SEAL",

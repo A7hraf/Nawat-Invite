@@ -68,6 +68,9 @@ export function Invitation({ data: d }: { data: InvitationData }) {
     if (music.current) { music.current.start(); setMusicOn(true); }
   }, [d.music]);
   const onStoryDone = useCallback(() => { setStage("open"); window.scrollTo(0, 0); }, []);
+  // The opening film cross-fades into the card instead of cutting.
+  const [fading, setFading] = useState(false);
+  const onFilmDone = useCallback(() => { setFading(true); setStage("open"); window.scrollTo(0, 0); setTimeout(() => setFading(false), 1000); }, []);
   const onDone = useCallback(() => {
     setFlash(true);
     setTimeout(() => { setStage("open"); window.scrollTo(0, 0); setTimeout(() => setFlash(false), 120); }, 650);
@@ -108,9 +111,10 @@ export function Invitation({ data: d }: { data: InvitationData }) {
         )}
       </div>
 
-      <div className={`inv-stage${stage === "open" ? " gone" : ""}`} role="dialog" aria-modal={stage !== "open"} aria-label="Invitation opening" style={stage === "open" ? { visibility: "hidden" } : undefined}>
-        {story && d.art.video
-          ? <VideoOpening src={d.art.video} poster={relief!} t={t} whoText={d.guest?.name ?? t.ourGuests} onBegin={onBegin} onDone={onStoryDone} />
+      <div className={`inv-stage${stage === "open" ? " gone" : ""}`} role="dialog" aria-modal={stage !== "open"} aria-label="Invitation opening" style={stage === "open" && !fading ? { visibility: "hidden" } : undefined}>
+        {story && d.art.video && !reducedMotion
+          ? <VideoOpening src={d.art.video} poster={d.art.video.endsWith("/opening.mp4") ? d.art.video.replace(/opening\.mp4$/, "opening-start.webp") : relief!}
+              t={t} whoText={d.guest?.name ?? t.ourGuests} onBegin={onBegin} onDone={onFilmDone} />
           : story
           ? <StoryOpening envelope="/themes/_shared/envelope.webp" envelopeTint={d.theme.envelope} liner={`color-mix(in srgb, ${d.theme.envelope} 45%, ${d.theme.palette.night})`}
               relief={relief!} faux={!d.art.relief} tone={d.theme.tone} accent={d.accent} script={d.theme.fonts.script} monogram={mono} t={t} whoText={d.guest?.name ?? t.ourGuests}

@@ -168,7 +168,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Gloock", arabic: "Aref Ruqaa", script: "Pinyon Script" }, interaction: "seal",
     ornament: "diamond",
     scene: { paper: "#F7EFE1", liner: "#7A2235", linerLine: "#D6B26A", pattern: "lattice", seal: "#6E1729", metal: "#C9A45C" },
-    music: "royal-coupling", particles: "gold", hero: "classic", tone: "dark", envelope: "#b8505d", art: ["reveal", "relief", "texture", "venue", "closing"],
+    music: "royal-coupling", particles: "gold", hero: "classic", tone: "dark", envelope: "#b8505d", art: ["video", "reveal", "relief", "texture", "venue", "closing"],
   },
   {
     slug: "emerald-deco", tier: "ROYAL_SEAL",
@@ -329,7 +329,7 @@ export function themeFontHrefs(t: ThemeDef): string[] {
 
 /** Bundled artwork URLs for a theme (public/themes/<slug>/<slot>.webp). */
 export function bundledArt(t: ThemeDef): ThemeArt {
-  return Object.fromEntries(t.art.map((slot) => [slot, `/themes/${t.slug}/${slot}.webp`]));
+  return Object.fromEntries(t.art.map((slot) => [slot, slot === "video" ? `/themes/${t.slug}/opening.mp4` : `/themes/${t.slug}/${slot}.webp`]));
 }
 
 /** Bundled music file for a theme. */

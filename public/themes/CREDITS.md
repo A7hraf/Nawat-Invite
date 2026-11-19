@@ -80,3 +80,10 @@ All photographs are used under the [Pexels License](https://www.pexels.com/licen
 ## blanc-royale
 - blanc (revealed scene): [https://www.pexels.com/photo/elegant-white-rose-bouquet-for-wedding-decorations-30325205/](https://www.pexels.com/photo/elegant-white-rose-bouquet-for-wedding-decorations-30325205/) · Mahmoud Yahyaoui · Pexels License
 - velvet-red (texture): [https://www.pexels.com/photo/red-curtain-4722583/](https://www.pexels.com/photo/red-curtain-4722583/) · cottonbro studio · Pexels License
+
+## Opening films (`opening.mp4`, `opening-start.webp`)
+
+Rendered for Nawat in Blender (Cycles) from `scripts/film/scene.py`: a modelled envelope,
+procedural wax seal with an eight-point khatam die, liner pattern, window-light gobo and
+the theme's own embossed card. No third-party footage. Blender is GPL; its rendered output
+belongs to Nawat.

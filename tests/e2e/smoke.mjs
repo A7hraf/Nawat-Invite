@@ -22,6 +22,7 @@ const errors = [];
 const watch = (p, label) => { p.on("pageerror", (e) => errors.push(`${label}: ${e.message}`)); p.on("console", (m) => { if (m.type() === "error" && !/fonts\.g|Failed to load resource/.test(m.text())) errors.push(`${label}: ${m.text()}`); }); };
 /** Opens an invitation whichever opening it has: hold the wax seal, tap a photo opening, or tap the 3D scene. */
 const openInvitation = async (pg) => {
+  if (await pg.locator(".sb-video-start").count()) { await pg.locator(".sb-video-start").click(); await pg.waitForSelector(".sb-card-sec", { timeout: 15000 }); await pg.waitForTimeout(400); return; }
   if (await pg.locator(".sb-seal").count()) { await pg.locator(".sb-seal").click(); await pg.waitForTimeout(3600); return; }
   if (await pg.locator(".k-seal").count()) {
     const bb = await pg.locator(".ph-seal").boundingBox();

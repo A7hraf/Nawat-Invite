@@ -25,7 +25,10 @@ for (const t of process.argv.slice(2)) {
   await p.goto(`${BASE}/preview/${t}`); await p.waitForTimeout(3500);
   await shot(t, "01-closed");
   const photo = await p.locator(".inv-photo").count();
-  if (await p.locator(".sb-seal").count()) {
+  if (await p.locator(".sb-video-start").count()) {
+    await p.click(".sb-video-start"); await p.waitForTimeout(2600); await shot(t, "02-flap"); await p.waitForTimeout(2400); await shot(t, "02b-rise");
+    await p.waitForSelector(".sb-card-sec", { timeout: 15000 });
+  } else if (await p.locator(".sb-seal").count()) {
     await p.click(".sb-seal"); await p.waitForTimeout(900); await shot(t, "02-flap"); await p.waitForTimeout(900); await shot(t, "02b-rise");
   } else if (photo && await p.locator(".k-seal").count()) {
     const c = await center(".ph-seal"); await p.mouse.move(...c); await p.mouse.down(); await p.waitForTimeout(600); await shot(t, "02-holding"); await p.waitForTimeout(700); await p.mouse.up();

@@ -156,7 +156,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Libre Caslon Display", arabic: "Mirza", script: "Italianno" }, interaction: "gatefold",
     ornament: "arch",
     scene: { surface: "#B5654F", detail: "#F1C8A8", frame: "#E8D3BE", light: "#FFD2AE", metal: "#F1C8A8" },
-    music: "the-desert", particles: "gold", hero: "editorial", tone: "light", envelope: "#efcfc3", art: ["reveal", "relief", "venue", "closing"],
+    music: "the-desert", particles: "gold", hero: "editorial", tone: "light", envelope: "#efcfc3", art: ["video", "reveal", "relief", "venue", "closing"],
   },
   {
     slug: "majlis-velvet", tier: "ROYAL_SEAL",
@@ -180,7 +180,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Poiret One", arabic: "Reem Kufi", script: "Italianno" }, interaction: "seal",
     ornament: "deco",
     scene: { surface: "#0F4D3C", lining: "#E8E0C8", metal: "#D4B062", light: "#FFF0C8" },
-    music: "brandenburg-3", particles: "gold", hero: "frame", tone: "dark", envelope: "#6fae95", art: ["reveal", "relief", "texture", "venue", "closing"],
+    music: "brandenburg-3", particles: "gold", hero: "frame", tone: "dark", envelope: "#6fae95", art: ["video", "reveal", "relief", "texture", "venue", "closing"],
   },
   {
     slug: "noir-monogram", tier: "ROYAL_SEAL",
@@ -192,7 +192,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Playfair Display", arabic: "Noto Kufi Arabic", script: "Luxurious Script" }, interaction: "curtain",
     ornament: "deco",
     scene: { fabric: "#1A1A1D", fabric2: "#060607", metal: "#C9C9CE", light: "#F2F2F5" },
-    music: "air-on-g", particles: "none", hero: "editorial", tone: "dark", envelope: "#6c6866", art: ["reveal", "relief", "texture", "venue", "closing"],
+    music: "air-on-g", particles: "none", hero: "editorial", tone: "dark", envelope: "#6c6866", art: ["video", "reveal", "relief", "texture", "venue", "closing"],
   },
 
   // ── Added in the 20-theme collection ──
@@ -206,7 +206,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Gilda Display", arabic: "Noto Naskh Arabic", script: "Parisienne" }, interaction: "seal",
     ornament: "pearl",
     scene: { paper: "#F7E9E4", liner: "#D9B8B0", linerLine: "#FFFFFF", pattern: "leaves", seal: "#A9764E", metal: "#C99A6E" },
-    music: "lovely-piano", particles: "petals", hero: "arch", tone: "light", envelope: "#f6dfdc", art: ["reveal", "relief", "venue", "closing"],
+    music: "lovely-piano", particles: "petals", hero: "arch", tone: "light", envelope: "#f6dfdc", art: ["video", "reveal", "relief", "venue", "closing"],
   },
   {
     slug: "garden-veil", tier: "IVORY",
@@ -218,7 +218,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Bellefair", arabic: "Harmattan", script: "Allura" }, interaction: "curtain",
     ornament: "leaf",
     scene: { fabric: "#EDE4D2", fabric2: "#C9BEA8", metal: "#CDB88A", light: "#FFF8E8" },
-    music: "hold-me-love-me", particles: "petals", hero: "classic", tone: "light", envelope: "#edf1e4", art: ["reveal", "relief", "texture", "venue", "closing"],
+    music: "hold-me-love-me", particles: "petals", hero: "classic", tone: "light", envelope: "#edf1e4", art: ["video", "reveal", "relief", "texture", "venue", "closing"],
   },
   {
     slug: "henna-night", tier: "IVORY",
@@ -230,7 +230,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Prata", arabic: "Rakkas", script: "Alex Brush" }, interaction: "seal",
     ornament: "arch",
     scene: { paper: "#F7E2CF", liner: "#A0412E", linerLine: "#E0A951", pattern: "lattice", seal: "#7E2418", metal: "#E0A951" },
-    music: "the-desert", particles: "gold", hero: "arch", tone: "light", envelope: "#e8b9a0", art: ["reveal", "relief", "venue", "closing"],
+    music: "the-desert", particles: "gold", hero: "arch", tone: "light", envelope: "#e8b9a0", art: ["video", "reveal", "relief", "venue", "closing"],
   },
   {
     slug: "andalus-zellige", tier: "GILDED",
@@ -278,7 +278,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Cormorant Garamond", arabic: "Noto Kufi Arabic", script: "WindSong" }, interaction: "ribbon",
     ornament: "pearl",
     scene: { surface: "#ECEAE7", lining: "#D8CFC2", metal: "#C6A97A", light: "#FFFFFF" },
-    music: "alls-fair-in-love", particles: "petals", hero: "editorial", tone: "light", envelope: "#f0efed", art: ["reveal", "relief", "venue", "closing"],
+    music: "alls-fair-in-love", particles: "petals", hero: "editorial", tone: "light", envelope: "#f0efed", art: ["video", "reveal", "relief", "venue", "closing"],
   },
   {
     slug: "isfahan-mirror", tier: "ROYAL_SEAL",
@@ -302,7 +302,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Tenor Sans", arabic: "Gulzar", script: "Imperial Script" }, interaction: "ribbon",
     ornament: "diamond",
     scene: { surface: "#B3121D", lining: "#1A1A1A", metal: "#D9A866", light: "#FFE6C0" },
-    music: "night-in-venice", particles: "gold", hero: "editorial", tone: "dark", envelope: "#c4505a", art: ["reveal", "relief", "venue", "closing"],
+    music: "night-in-venice", particles: "gold", hero: "editorial", tone: "dark", envelope: "#c4505a", art: ["video", "reveal", "relief", "venue", "closing"],
   },
   {
     slug: "blanc-royale", tier: "ROYAL_SEAL",
@@ -314,7 +314,7 @@ export const THEMES: ThemeDef[] = [
     fonts: { display: "Italiana", arabic: "Amiri", script: "Monsieur La Doulaise" }, interaction: "curtain",
     ornament: "pearl",
     scene: { fabric: "#EFE6D4", fabric2: "#CDBFA6", metal: "#CBB07A", light: "#FFFFFF" },
-    music: "celebration", particles: "petals", hero: "frame", tone: "light", envelope: "#fbf8f2", art: ["reveal", "relief", "texture", "venue", "closing"],
+    music: "celebration", particles: "petals", hero: "frame", tone: "light", envelope: "#fbf8f2", art: ["video", "reveal", "relief", "texture", "venue", "closing"],
   },
 ];
 

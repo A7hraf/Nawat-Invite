@@ -1,6 +1,6 @@
 # Theme artwork credits
 
-**Painted scenes** for mocha-champagne, vellum-garden, muscat-sea, bab-al-noor, dana-pearl, layali-celestial, andalus-zellige, riad-jasmine, fanous-lantern, majlis-velvet, isfahan-mirror are original illustrations generated for Nawat (Figma AI image generation, owned by the account holder). The embossed paper versions (`relief.webp`) are derived from them by `scripts/make-relief.py`. The embossed envelope (`_shared/envelope.webp`) was generated with Canva AI.
+**Painted scenes** for mocha-champagne, vellum-garden, muscat-sea, bab-al-noor, dana-pearl, layali-celestial, andalus-zellige, riad-jasmine, fanous-lantern, majlis-velvet, isfahan-mirror, blush-letter, garden-veil, henna-night, desert-rose, marble-peony, emerald-deco, noir-monogram, rouge-noir are original illustrations generated for Nawat (Figma AI image generation, owned by the account holder). The embossed paper versions (`relief.webp`) are derived from them by `scripts/make-relief.py`. The embossed envelope (`_shared/envelope.webp`) was generated with Canva AI.
 
 The photographs below remain for the other themes and for venue/texture crops.
 

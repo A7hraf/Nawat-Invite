@@ -130,7 +130,7 @@ export function Invitation({ data: d }: { data: InvitationData }) {
       {stage === "open" && (
         <main className="inv-col">
           {story ? (
-            <StoryCard relief={relief!} painted={d.art.reveal!} tone={d.theme.tone} bism={c.verse} kicker={t.together}
+            <StoryCard relief={relief!} painted={d.art.reveal!} tone={d.theme.tone} bism={c.verse} kicker={t.together} fromFilm={!!d.art.video && !reducedMotion}
               n1={pick(c.partner1, lang)} n2={pick(c.partner2, lang)} amp={lang === "ar" ? "و" : "&"}
               alt={bilingual ? (lang === "ar" ? namesEn : namesAr || null) : null}
               message={pick(c.message, lang)} families={pick(c.families, lang)} lang={lang} scrollLabel={t.scroll} fx={particles}
@@ -159,7 +159,7 @@ export function Invitation({ data: d }: { data: InvitationData }) {
           )}
 
           {c.sections.letter && pick(c.letter, lang) && (
-            <CurtainLetter text={pick(c.letter, lang)} guest={d.guest?.name ?? null} signature={lang === "ar" && namesAr ? namesAr : namesEn} texture={d.art.texture ?? null} t={t} lang={lang} />
+            <CurtainLetter text={pick(c.letter, lang)} guest={d.guest?.name ?? null} signature={lang === "ar" && namesAr ? namesAr : namesEn} texture={d.art.reveal ?? null} t={t} lang={lang} />
           )}
 
           <section className="light grain">

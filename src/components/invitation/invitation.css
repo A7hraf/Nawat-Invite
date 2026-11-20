@@ -532,3 +532,24 @@
 /* living painted scene (WebGL), fades in over the static painting once it has bloomed */
 .sb-card-sec .living { width: 100%; height: 100%; pointer-events: none; z-index: 1; }
 .sb-card-sec.has-living.s4 .layer:not(.living) { animation: none; }
+
+/* the film ends on the painting: continue from it without re-blooming */
+.sb-card-sec.from-film .relief { display: none; }
+.sb-card-sec.from-film .painted { --bloom: 150%; -webkit-mask-image: none; mask-image: none; animation: sb-drift 30s ease-in-out infinite alternate; }
+.sb-card-sec.from-film .txt > * { color: var(--c); text-shadow: 0 1px 14px color-mix(in srgb, var(--paper) 60%, transparent); }
+.sb-card-sec.from-film.tone-dark .txt > * { text-shadow: 0 2px 16px rgba(0,0,0,.6); }
+.sb-card-sec.from-film .txt::before { opacity: 1; }
+
+/* letter over the theme's painting */
+.inv .inv-letter-sec { position: relative; padding: 90px 0; display: grid; place-items: center; overflow: hidden; background: var(--night2); }
+.inv-letter-sec .bg { position: absolute; inset: -30px; background-size: cover; background-position: center; filter: blur(14px) saturate(1.05); opacity: .55; }
+.inv-letter-sec .letter { position: relative; width: min(86%, 400px); padding: 44px 30px 38px; background: var(--paper); color: var(--ink); border-radius: 4px; box-shadow: 0 40px 80px rgba(0,0,0,.35); text-align: center; }
+.inv-letter-sec .letter::before { content: ""; position: absolute; inset: 10px; border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); pointer-events: none; }
+.inv-letter-sec .letter .inv-kicker { color: var(--accentText); }
+.inv-letter-sec .dear { font-family: var(--display-font); font-style: italic; font-size: 22px; margin: 18px 0 6px; color: var(--muted); }
+.inv[dir="rtl"] .inv-letter-sec .dear { font-family: var(--ar-font); font-style: normal; }
+.inv-letter-sec .letter p { font-family: var(--msg), var(--display-font); font-size: clamp(20px, 5.6vw, 25px); line-height: 1.5; margin: 10px 0 22px; white-space: pre-line; }
+.inv[dir="rtl"] .inv-letter-sec .letter p { font-family: var(--ar-font); font-size: clamp(20px, 5.6vw, 24px); line-height: 1.85; }
+.inv-letter-sec .sig { font-family: var(--script-font); font-size: 36px; color: var(--accentText); line-height: 1.1; }
+.inv-letter-sec .sig:lang(ar) { font-family: var(--ar-font); font-size: 26px; }
+.sb-video-start .ring { display: none; }

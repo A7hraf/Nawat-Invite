@@ -65,6 +65,8 @@ type Detail = { icon: "date" | "time" | "place"; label: string; value: string; h
 export function StoryCard(p: {
   relief: string; painted: string; tone: "light" | "dark"; bism: boolean; kicker: string; n1: string; n2: string; amp: string; alt: string | null;
   message: string; families: string; details: Detail[]; scrollLabel: string; lang: "ar" | "en"; fx?: React.ReactNode;
+  /** The opening film ended on the painting itself: start there, alive, and write the names in. */
+  fromFilm?: boolean;
 }) {
   const [step, setStep] = useState(0);
   useEffect(() => {
@@ -74,10 +76,10 @@ export function StoryCard(p: {
   }, []);
   const depth = depthUrlFor(p.painted);
   return (
-    <section className={`sb-card-sec tone-${p.tone} s${step}${depth ? " has-living" : ""}`}>
+    <section className={`sb-card-sec tone-${p.tone} s${step}${depth ? " has-living" : ""}${p.fromFilm ? " from-film" : ""}`}>
       <div className={`layer relief${p.relief === p.painted ? " faux" : ""}`} style={{ backgroundImage: `url(${p.relief})` }} aria-hidden="true" />
       <div className="layer painted" style={{ backgroundImage: `url(${p.painted})` }} aria-hidden="true" />
-      {depth && <LivingScene painted={p.painted} depth={depth} active={step >= 4} />}
+      {depth && <LivingScene painted={p.painted} depth={depth} active={p.fromFilm || step >= 4} />}
       {p.fx}
       <div className="doves" aria-hidden="true">{[0, 1, 2].map((i) => <Dove key={i} i={i} />)}</div>
       <div className="txt">

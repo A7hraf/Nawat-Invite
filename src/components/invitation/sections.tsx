@@ -9,43 +9,18 @@ import { useHold } from "./useHold";
 
 const reduced = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* ───────────── Curtain letter: the curtain parts as the guest scrolls ───────────── */
+/* ───────────── Letter: a paper card resting over the theme's own painting ───────────── */
 
 export function CurtainLetter({ text, guest, signature, texture, t, lang }: { text: string; guest: string | null; signature: string; texture: string | null; t: Strings; lang: Locale }) {
-  const ref = useRef<HTMLElement>(null);
-  const [still, setStill] = useState(false);
-  useEffect(() => {
-    if (reduced()) { setStill(true); return; }
-    const el = ref.current!;
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const r = el.getBoundingClientRect();
-      const span = r.height - window.innerHeight;
-      const p = Math.max(0, Math.min(1, -r.top / Math.max(1, span * 0.7)));
-      el.style.setProperty("--p", p.toFixed(4));
-    };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); cancelAnimationFrame(raf); };
-  }, []);
-  const tex = texture ? { backgroundImage: `url(${texture})` } : undefined;
   return (
-    <section ref={ref} className={`inv-curtain${still ? " still" : ""}`} aria-label={t.letterKicker}>
-      <div className="stick">
-        <article className="letter">
-          <div className="inv-kicker">{t.letterKicker}</div>
-          {guest && <div className="dear">{t.dear} {guest},</div>}
-          <p>{text}</p>
-          <div className="sig" lang={lang}>{signature}</div>
-        </article>
-        <div className="drape dl" style={tex}><i /></div>
-        <div className="drape dr" style={tex}><i /></div>
-        <div className="valance" style={tex} />
-        <div className="inv-cue on-curtain" aria-hidden="true"><span>{t.scrollOpen}</span><i /></div>
-      </div>
+    <section className="inv-letter-sec" aria-label={t.letterKicker}>
+      {texture && <div className="bg" style={{ backgroundImage: `url(${texture})` }} aria-hidden="true" />}
+      <article className="letter reveal">
+        <div className="inv-kicker">{t.letterKicker}</div>
+        {guest && <div className="dear">{t.dear} {guest},</div>}
+        <p>{text}</p>
+        <div className="sig" lang={lang}>{signature}</div>
+      </article>
     </section>
   );
 }

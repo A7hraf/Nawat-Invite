@@ -65,19 +65,63 @@ def build(ctx):
     crd, em = card(relief)
     sc = 0.95
     rest = Vector((0, 0, BH * 0.8 + 0.06))
-    key(crd, T(0.0), location=rest.copy(), rotation_euler=(0, 0, 0), scale=Vector((sc, sc, 1)))
-    key(crd, T(3.4), location=rest.copy(), rotation_euler=(0, 0, 0), scale=Vector((sc, sc, 1)))
-    key(crd, T(4.7), location=Vector((0, -0.2, 1.0)), rotation_euler=(math.radians(45), 0, math.radians(-10)), scale=Vector((1, 1, 1)))
-    key(crd, T(6.2), location=CARD_END.copy(), rotation_euler=(math.radians(90), 0, 0), scale=Vector((1, 1, 1)))
-    key(crd, lib.END, location=CARD_END.copy(), rotation_euler=(math.radians(90), 0, 0), scale=Vector((1, 1, 1)))
+    lib.END = 216
+    scn = lib.scn; scn.frame_end = lib.END
+    sleeve = A.get("sleeve", "#EFE8DC"); tone = A.get("skin", "#C69A7C")
+    R, rr = human_arm("R", tone=tone, sleeve_color=sleeve)
+    L, rl = human_arm("L", tone=tone, sleeve_color=sleeve)
+    off = (0, -9, 3)   # parked out of frame, toward the guest
 
+    # 1. the right hand reaches for the bow, pinches the tail and draws the ribbon away
+    bow_at = Vector((0.45, 0.75, lid_z + 0.1))
+    place(R, T(0.0), (2.6, -5.5, 1.6), (10, 0, 35)); pose_fingers(rr, T(0.0), curl=0.05, thumb=0.1)
+    place(R, T(0.6), (2.6, -5.5, 1.6), (10, 0, 35))
+    place(R, T(1.4), (bow_at.x + 0.75, bow_at.y - 1.25, bow_at.z + 0.32), (-12, -10, 32)); pose_fingers(rr, T(1.3), curl=0.05, thumb=0.1, index=0.1)
+    pose_fingers(rr, T(1.6), curl=0.35, thumb=0.6, index=0.55)
+    place(R, T(1.65), (bow_at.x + 0.75, bow_at.y - 1.25, bow_at.z + 0.30), (-12, -10, 32))
+    place(R, T(2.7), (bow_at.x + 3.2, bow_at.y - 2.6, bow_at.z + 0.75), (-4, -14, 40))
+    place(R, T(3.1), (5.0, -6.0, 1.6), (6, 0, 40))
+    pose_fingers(rr, T(2.9), curl=0.35, thumb=0.6, index=0.55)
+    pose_fingers(rr, T(3.2), curl=0.05, thumb=0.1)
     key(tie, T(0.0), location=Vector((0, 0, 0)), rotation_euler=(0, 0, 0))
-    key(tie, T(1.2), location=Vector((0, 0, 0)))
-    key(tie, T(2.3), location=Vector((2.6, 0.8, 0.1)), rotation_euler=(0, 0, math.radians(-25)))
+    key(tie, T(1.65), location=Vector((0, 0, 0)), rotation_euler=(0, 0, 0))
+    follow(tie, R, list(range(T(1.65), T(3.1) + 1, 2)))
+    tie.rotation_mode = "QUATERNION"
+
+    # 2. both hands come to the lid's sides, take it and lift it away
+    for H, rig, sx in ((R, rr, 1), (L, rl, -1)):
+        side = (sx * (BW / 2 + 0.03 + 0.62), -0.55, lid_z + 0.24)
+        rot = (0, -18 * sx, 62 * sx)
+        if H is L:
+            place(L, T(0.0), (-5.0, -6.0, 1.6), (6, 0, -40)); place(L, T(2.7), (-5.0, -6.0, 1.6), (6, 0, -40))
+            pose_fingers(rl, T(0.0), curl=0.05, thumb=0.1)
+        place(H, T(3.0 if H is L else 3.15), (sx * 2.6, -3.2, 1.2), (0, -10 * sx, 50 * sx))
+        place(H, T(3.7), side, rot)
+        pose_fingers(rig, T(3.6), curl=0.05, thumb=0.15)
+        pose_fingers(rig, T(3.85), curl=0.42, thumb=0.35)
     key(lid, T(0.0), location=Vector((0, 0, lid_z)), rotation_euler=(0, 0, 0))
-    key(lid, T(2.0), location=Vector((0, 0, lid_z)), rotation_euler=(0, 0, 0))
-    key(lid, T(2.5), location=Vector((0, 0.05, lid_z + 0.25)), rotation_euler=(math.radians(-4), 0, 0))
-    key(lid, T(3.6), location=Vector((0.4, 2.6, lid_z + 1.4)), rotation_euler=(math.radians(-35), 0, math.radians(8)))
+    key(lid, T(3.85), location=Vector((0, 0, lid_z)), rotation_euler=(0, 0, 0))
+    key(lid, T(4.3), location=Vector((0, -0.05, lid_z + 0.35)), rotation_euler=(math.radians(3), 0, 0))
+    key(lid, T(5.0), location=Vector((0.3, -1.0, lid_z + 2.2)), rotation_euler=(math.radians(-25), 0, 0))
+    key(lid, T(5.8), location=Vector((1.2, -2.6, lid_z + 5.5)), rotation_euler=(math.radians(-55), 0, 0))
+    for H in (R, L):
+        follow(H, lid, list(range(T(3.85), T(5.8) + 1, 2)))
+
+    # 3. the right hand returns, slips under the card's near edge and presents it
+    near = Vector((0, -CH * sc / 2, rest.z))
+    place(R, T(5.9), (2.6, -6.0, 1.8), (10, 0, 30)); pose_fingers(rr, T(5.9), curl=0.05, thumb=0.1)
+    place(R, T(6.5), (0.35, near.y - 1.35, rest.z + 0.18), (-8, 0, 8)); pose_fingers(rr, T(6.4), curl=-0.1, thumb=0.1)
+    pose_fingers(rr, T(6.75), curl=0.3, thumb=0.55)
+    place(R, T(6.75), (0.35, near.y - 1.32, rest.z + 0.12), (-8, 0, 8))
+    key(crd, T(0.0), location=rest.copy(), rotation_euler=(0, 0, 0), scale=Vector((sc, sc, 1)))
+    key(crd, T(6.75), location=rest.copy(), rotation_euler=(0, 0, 0), scale=Vector((sc, sc, 1)))
+    key(crd, T(7.6), location=Vector((0, -0.3, 1.25)), rotation_euler=(math.radians(52), 0, math.radians(-5)), scale=Vector((1, 1, 1)))
+    follow(R, crd, list(range(T(6.75), T(7.6) + 1, 2)))
+    place(R, T(8.1), (1.2, -4.5, 0.2), (0, 0, 20))
+    pose_fingers(rr, T(7.7), curl=0.3, thumb=0.55); pose_fingers(rr, T(7.95), curl=0.0, thumb=0.1)
+    key(crd, T(8.3), location=CARD_END.copy(), rotation_euler=(math.radians(90), 0, 0), scale=Vector((1, 1, 1)))
+    key(crd, lib.END, location=CARD_END.copy(), rotation_euler=(math.radians(90), 0, 0), scale=Vector((1, 1, 1)))
+    place(L, T(5.9), (-5.0, -6.0, 1.6), (6, 0, -40))
 
     # roses and candles around
     pm = petal_mat("rose", hexrgb(A["rose"]))
@@ -100,14 +144,16 @@ def build(ctx):
     area("rim", (2.5, 5, 2.5), 2.5, 500, color=(1, 0.85, 0.65), aim=aim)
     area("card-key", (-1.0, CARD_END.y - 2.6, 3.2), 1.4, 70, color=(1, 0.9, 0.8), aim=aim_empty(tuple(CARD_END)))
 
-    cam, tgt = camera(lens=45, fstop=1.8)
-    D = fill_distance(lens=45)
+    cam, tgt = camera(lens=40, fstop=2.2)
+    D = fill_distance(lens=40)
     cam_path(cam, tgt, [
-        (T(0.0), (1.4, -3.8, 2.6), (0, 0, 0.4)),
-        (T(1.8), (1.1, -3.5, 2.7), (0, 0, 0.45)),
-        (T(3.4), (0.5, -3.2, 2.8), (0, 0, 0.7)),
-        (T(5.0), (0.1, CARD_END.y - D - 0.8, CARD_END.z + 0.1), (0, CARD_END.y, CARD_END.z - 0.15)),
-        (T(6.6), (0.0, CARD_END.y - D, CARD_END.z), tuple(CARD_END)),
+        (T(0.0), (0.9, -4.6, 3.3), (0, 0, 0.45)),
+        (T(3.0), (0.7, -4.4, 3.4), (0, 0, 0.5)),
+        (T(5.6), (0.4, -4.3, 3.2), (0, -0.2, 0.6)),
+        (T(7.4), (0.1, CARD_END.y - D - 0.9, CARD_END.z + 0.15), (0, CARD_END.y, CARD_END.z - 0.1)),
+        (T(8.4), (0.0, CARD_END.y - D, CARD_END.z), tuple(CARD_END)),
         (lib.END, (0.0, CARD_END.y - D, CARD_END.z), tuple(CARD_END)),
     ])
-    end_lift(em, T(5.6), T(6.6), 0.28)
+    handheld(cam, tgt, 1.0, until=T(8.3))
+    motion_blur(True, 0.4)
+    end_lift(em, T(7.6), T(8.4), 0.28)

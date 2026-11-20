@@ -97,3 +97,8 @@ Depth maps estimated from each theme's own painting with Depth Anything V2 Small
 
 Studio/environment lighting maps in `scripts/film/hdri/` come from the pmndrs assets
 package (CC0, originally Poly Haven).
+
+## Film hands / 3D models
+
+`scripts/film/models/arm_r.blend` is built from the MakeHuman 1.1 base mesh, skeleton and
+weights (CC0). `left.glb` / `right.glb` are from webxr-input-profiles (MIT).
